@@ -1,0 +1,21 @@
+/* ================================================================
+   DARK MODE OVERRIDES
+   ================================================================ */
+
+html.dark {
+  --bg-app:       #0f1117;
+  --bg-card:      #1a1d2e;
+  --bg-elevated:  #222538;
+  --bg-input:     var(--color-slate-700);
+  --border-color: var(--color-slate-700);
+  --border-subtle:rgba(51, 65, 85, 0.6);
+
+  --text-primary:   var(--color-slate-100);
+  --text-secondary: var(--color-slate-300);
+  --text-muted:     var(--color-slate-400);
+  --text-subtle:    var(--color-slate-500);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.45);
+}

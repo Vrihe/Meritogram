@@ -1,0 +1,15 @@
+{
+  "name": "edu-ai-dashboard",
+  "version": "1.0.0",
+  "description": "AI-Powered Student Learning & Code Review Dashboard",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.0"
+  }
+}
