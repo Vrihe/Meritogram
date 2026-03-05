@@ -1,8 +1,8 @@
 // MongoDB Database Module
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
-const DB_NAME = 'eduai_dashboard';
+const MONGO_URI = process.env.MONGO_URI || 'REDACTED_MONGO_URL/';
+const DB_NAME = 'student_learning_db';
 
 let client = null;
 let db = null;
