@@ -1,5 +1,6 @@
 import { createHashRouter, Navigate } from "react-router";
 import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CoursesPage } from "./pages/CoursesPage";
 import { AttendancePage } from "./pages/AttendancePage";
@@ -13,7 +14,7 @@ import { LoginPage } from "./pages/LoginPage";
 export const router = createHashRouter([
   {
     path: "/",
-    Component: Layout,
+    element: <ProtectedRoute><Layout /></ProtectedRoute>,
     children: [
       { index: true, Component: DashboardPage },
       { path: "courses", Component: CoursesPage },

@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, Award } from "lucide-react";
+import { gradeService, type GradeRecord } from "../services/grade.service";
+import { courseService, type CourseData } from "../services/course.service";
 
-interface Course {
+interface CourseGrades {
   id: string;
   name: string;
   code: string;
@@ -16,68 +19,98 @@ interface Course {
   }[];
 }
 
-const courses: Course[] = [
-  {
-    id: "1",
-    name: "Data Structures & Algorithms",
-    code: "CS 201",
-    grade: 92,
-    letterGrade: "A",
-    credits: 4,
-    trend: "up",
-    assignments: [
-      { name: "Midterm Exam", score: 88, maxScore: 100, weight: 30 },
-      { name: "Final Project", score: 95, maxScore: 100, weight: 40 },
-      { name: "Homework Avg", score: 92, maxScore: 100, weight: 30 },
-    ],
-  },
-  {
-    id: "2",
-    name: "Database Systems",
-    code: "CS 305",
-    grade: 88,
-    letterGrade: "A-",
-    credits: 3,
-    trend: "stable",
-    assignments: [
-      { name: "Midterm Exam", score: 85, maxScore: 100, weight: 35 },
-      { name: "Final Project", score: 90, maxScore: 100, weight: 35 },
-      { name: "Lab Work", score: 89, maxScore: 100, weight: 30 },
-    ],
-  },
-  {
-    id: "3",
-    name: "Machine Learning",
-    code: "CS 412",
-    grade: 85,
-    letterGrade: "B+",
-    credits: 4,
-    trend: "down",
-    assignments: [
-      { name: "Midterm Exam", score: 82, maxScore: 100, weight: 30 },
-      { name: "Research Project", score: 88, maxScore: 100, weight: 45 },
-      { name: "Assignments", score: 84, maxScore: 100, weight: 25 },
-    ],
-  },
-  {
-    id: "4",
-    name: "Software Engineering",
-    code: "CS 320",
-    grade: 95,
-    letterGrade: "A",
-    credits: 3,
-    trend: "up",
-    assignments: [
-      { name: "Team Project", score: 96, maxScore: 100, weight: 50 },
-      { name: "Code Reviews", score: 94, maxScore: 100, weight: 25 },
-      { name: "Documentation", score: 95, maxScore: 100, weight: 25 },
-    ],
-  },
-];
+function getLetterGrade(score: number): string {
+  if (score >= 93) return "A";
+  if (score >= 90) return "A-";
+  if (score >= 87) return "B+";
+  if (score >= 83) return "B";
+  if (score >= 80) return "B-";
+  if (score >= 77) return "C+";
+  if (score >= 73) return "C";
+  if (score >= 70) return "C-";
+  if (score >= 67) return "D+";
+  if (score >= 60) return "D";
+  return "F";
+}
+
+function getTrend(grades: GradeRecord[]): "up" | "down" | "stable" {
+  if (grades.length < 2) return "stable";
+  const sorted = [...grades].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const recent = sorted[sorted.length - 1].score;
+  const prev = sorted[sorted.length - 2].score;
+  if (recent > prev) return "up";
+  if (recent < prev) return "down";
+  return "stable";
+}
 
 export function GradesPage() {
+  const [courses, setCourses] = useState<CourseGrades[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [gradesData, coursesData] = await Promise.all([
+          gradeService.getAll(),
+          courseService.getAll(),
+        ]);
+
+        const courseMap = new Map<string, CourseData>();
+        coursesData.forEach((c) => courseMap.set(c.id, c));
+
+        const gradesByCourse = new Map<string, GradeRecord[]>();
+        gradesData.forEach((g) => {
+          const list = gradesByCourse.get(g.course_id) || [];
+          list.push(g);
+          gradesByCourse.set(g.course_id, list);
+        });
+
+        const mapped: CourseGrades[] = [];
+        gradesByCourse.forEach((grades, courseId) => {
+          const course = courseMap.get(courseId);
+          if (!course) return;
+
+          const avgScore = grades.reduce((s, g) => s + g.score, 0) / grades.length;
+
+          mapped.push({
+            id: courseId,
+            name: course.name,
+            code: course.code,
+            grade: Math.round(avgScore),
+            letterGrade: getLetterGrade(avgScore),
+            credits: course.credits || 3,
+            trend: getTrend(grades),
+            assignments: grades.map((g) => ({
+              name: g.name,
+              score: g.score,
+              maxScore: g.max_score,
+              weight: g.weight,
+            })),
+          });
+        });
+
+        setCourses(mapped);
+      } catch (err) {
+        console.error("Failed to load grades:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
   const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-  const weightedGPA = courses.reduce((sum, c) => sum + c.grade * c.credits, 0) / totalCredits;
+  const weightedGPA = totalCredits > 0
+    ? courses.reduce((sum, c) => sum + c.grade * c.credits, 0) / totalCredits
+    : 0;
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -91,7 +124,7 @@ export function GradesPage() {
           <p className="text-3xl text-slate-900 dark:text-white">
             {(weightedGPA / 25).toFixed(2)}
           </p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">↑ 0.12 from last semester</p>
+          <p className="text-xs text-green-600 dark:text-green-400 mt-1">Current semester</p>
         </div>
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6">
@@ -107,13 +140,13 @@ export function GradesPage() {
 
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Class Rank</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Courses</p>
             <Award className="w-5 h-5 text-amber-500" />
           </div>
           <p className="text-3xl text-slate-900 dark:text-white">
-            12th
+            {courses.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Out of 245 students</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">With grades</p>
         </div>
       </div>
 

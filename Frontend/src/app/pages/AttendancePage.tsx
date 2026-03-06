@@ -1,41 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, CheckCircle, XCircle, Clock, Filter } from "lucide-react";
-
-interface AttendanceRecord {
-  date: string;
-  course: string;
-  status: "present" | "absent" | "late";
-  notes?: string;
-}
-
-const attendanceData: AttendanceRecord[] = [
-  { date: "2026-03-06", course: "CS 301", status: "present" },
-  { date: "2026-03-06", course: "CS 415", status: "late", notes: "Arrived 10 min late" },
-  { date: "2026-03-05", course: "CS 301", status: "present" },
-  { date: "2026-03-05", course: "CS 350", status: "absent", notes: "Sick leave" },
-  { date: "2026-03-04", course: "CS 380", status: "present" },
-  { date: "2026-03-04", course: "CS 420", status: "present" },
-  { date: "2026-03-03", course: "CS 301", status: "present" },
-  { date: "2026-03-03", course: "CS 415", status: "present" },
-];
-
-const courses = ["All Courses", "CS 301", "CS 350", "CS 380", "CS 415", "CS 420"];
+import { attendanceService, type AttendanceRecord } from "../services/attendance.service";
+import { courseService } from "../services/course.service";
 
 export function AttendancePage() {
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [courses, setCourses] = useState<string[]>(["All Courses"]);
   const [selectedCourse, setSelectedCourse] = useState("All Courses");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [attendanceData, coursesData] = await Promise.all([
+          attendanceService.getAll(),
+          courseService.getAll(),
+        ]);
+        setRecords(attendanceData);
+        setCourses(["All Courses", ...coursesData.map((c) => c.code)]);
+      } catch (err) {
+        console.error("Failed to load attendance:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const filteredData = selectedCourse === "All Courses"
-    ? attendanceData
-    : attendanceData.filter(record => record.course === selectedCourse);
+    ? records
+    : records.filter(record => record.course_code === selectedCourse);
 
   const stats = {
-    present: attendanceData.filter(r => r.status === "present").length,
-    absent: attendanceData.filter(r => r.status === "absent").length,
-    late: attendanceData.filter(r => r.status === "late").length,
-    total: attendanceData.length,
+    present: records.filter(r => r.status === "present").length,
+    absent: records.filter(r => r.status === "absent").length,
+    late: records.filter(r => r.status === "late").length,
+    total: records.length,
   };
 
-  const attendanceRate = ((stats.present / stats.total) * 100).toFixed(1);
+  const attendanceRate = stats.total > 0 ? ((stats.present / stats.total) * 100).toFixed(1) : "0.0";
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,6 +65,14 @@ export function AttendancePage() {
         return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -95,7 +106,7 @@ export function AttendancePage() {
           </div>
           <p className="text-3xl text-neutral-900 dark:text-white">{stats.present}</p>
           <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-            {((stats.present / stats.total) * 100).toFixed(0)}% of total
+            {stats.total > 0 ? ((stats.present / stats.total) * 100).toFixed(0) : 0}% of total
           </p>
         </div>
 
@@ -106,7 +117,7 @@ export function AttendancePage() {
           </div>
           <p className="text-3xl text-neutral-900 dark:text-white">{stats.absent}</p>
           <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-            {((stats.absent / stats.total) * 100).toFixed(0)}% of total
+            {stats.total > 0 ? ((stats.absent / stats.total) * 100).toFixed(0) : 0}% of total
           </p>
         </div>
 
@@ -117,7 +128,7 @@ export function AttendancePage() {
           </div>
           <p className="text-3xl text-neutral-900 dark:text-white">{stats.late}</p>
           <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-            {((stats.late / stats.total) * 100).toFixed(0)}% of total
+            {stats.total > 0 ? ((stats.late / stats.total) * 100).toFixed(0) : 0}% of total
           </p>
         </div>
       </div>
@@ -144,37 +155,43 @@ export function AttendancePage() {
           <h3 className="text-neutral-900 dark:text-white">Attendance Records</h3>
         </div>
         <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
-          {filteredData.map((record, idx) => (
-            <div key={idx} className="px-6 py-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition">
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                    {new Date(record.date).toLocaleDateString('en-US', { weekday: 'short' })}
-                  </p>
-                  <p className="text-lg text-neutral-900 dark:text-white">
-                    {new Date(record.date).getDate()}
-                  </p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                    {new Date(record.date).toLocaleDateString('en-US', { month: 'short' })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-neutral-900 dark:text-white">{record.course}</p>
-                  {record.notes && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5">
-                      {record.notes}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div
-                className={`flex items-center gap-2 px-3 py-1.5 border ${getStatusColor(record.status)}`}
-              >
-                {getStatusIcon(record.status)}
-                <span className="text-xs capitalize">{record.status}</span>
-              </div>
+          {filteredData.length === 0 ? (
+            <div className="px-6 py-8 text-center text-neutral-500 dark:text-neutral-400 text-sm">
+              No attendance records found
             </div>
-          ))}
+          ) : (
+            filteredData.map((record) => (
+              <div key={record.id} className="px-6 py-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition">
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      {new Date(record.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                    </p>
+                    <p className="text-lg text-neutral-900 dark:text-white">
+                      {new Date(record.date).getDate()}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      {new Date(record.date).toLocaleDateString('en-US', { month: 'short' })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-neutral-900 dark:text-white">{record.course_code || record.course_name}</p>
+                    {record.notes && (
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5">
+                        {record.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className={`flex items-center gap-2 px-3 py-1.5 border ${getStatusColor(record.status)}`}
+                >
+                  {getStatusIcon(record.status)}
+                  <span className="text-xs capitalize">{record.status}</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

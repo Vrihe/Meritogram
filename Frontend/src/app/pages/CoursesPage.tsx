@@ -1,100 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BookOpen, Users, Clock, Award, ChevronRight, Plus, Search, Filter } from "lucide-react";
 import { GradeSparkline } from "../components/GradeSparkline";
 import { useTheme } from "../context/ThemeContext";
+import { courseService, type CourseData } from "../services/course.service";
+import { gradeService } from "../services/grade.service";
 
-const courses = [
-  {
-    id: 1,
-    name: "Data Structures & Algorithms",
-    code: "CS 301",
-    instructor: "Dr. Sarah Chen",
-    color: "#6366f1",
-    credits: 4,
-    schedule: "Mon / Wed 10:00–11:30",
-    room: "ENG 214",
-    students: 34,
-    attended: 24,
-    total: 28,
-    currentGrade: 92,
-    gradeHistory: [78, 82, 85, 88, 91, 92],
-    description: "Comprehensive study of fundamental data structures and algorithm design techniques.",
-    tags: ["Core", "Lab Required"],
-  },
-  {
-    id: 2,
-    name: "Machine Learning Fundamentals",
-    code: "CS 415",
-    instructor: "Prof. Marcus Wright",
-    color: "#8b5cf6",
-    credits: 3,
-    schedule: "Tue / Thu 14:00–15:30",
-    room: "SCI 108",
-    students: 28,
-    attended: 20,
-    total: 26,
-    currentGrade: 87,
-    gradeHistory: [80, 79, 83, 85, 86, 87],
-    description: "Introduction to supervised, unsupervised learning with Python and scikit-learn.",
-    tags: ["Elective", "Python"],
-  },
-  {
-    id: 3,
-    name: "Operating Systems",
-    code: "CS 350",
-    instructor: "Dr. Priya Patel",
-    color: "#06b6d4",
-    credits: 3,
-    schedule: "Mon / Wed / Fri 09:00–10:00",
-    room: "COMP 301",
-    students: 42,
-    attended: 22,
-    total: 25,
-    currentGrade: 78,
-    gradeHistory: [70, 72, 74, 76, 77, 78],
-    description: "Process management, memory systems, filesystems, and concurrency.",
-    tags: ["Core", "C/C++"],
-  },
-  {
-    id: 4,
-    name: "Database Management",
-    code: "CS 380",
-    instructor: "Prof. Alan Torres",
-    color: "#10b981",
-    credits: 3,
-    schedule: "Tue / Thu 10:00–11:30",
-    room: "ENG 102",
-    students: 31,
-    attended: 23,
-    total: 27,
-    currentGrade: 95,
-    gradeHistory: [88, 90, 91, 93, 94, 95],
-    description: "Relational databases, SQL, normalization, transactions, and NoSQL systems.",
-    tags: ["Core", "SQL"],
-  },
-  {
-    id: 5,
-    name: "Computer Networks",
-    code: "CS 420",
-    instructor: "Dr. Linda Zhao",
-    color: "#f59e0b",
-    credits: 3,
-    schedule: "Mon / Wed 13:00–14:30",
-    room: "NET 205",
-    students: 25,
-    attended: 19,
-    total: 24,
-    currentGrade: 82,
-    gradeHistory: [75, 76, 78, 80, 81, 82],
-    description: "Network protocols, TCP/IP stack, socket programming, and network security basics.",
-    tags: ["Elective", "Lab Required"],
-  },
-];
+interface CourseFull extends CourseData {
+  students: number;
+  attended: number;
+  total: number;
+  currentGrade: number;
+  gradeHistory: number[];
+}
 
 export function CoursesPage() {
+  const [courses, setCourses] = useState<CourseFull[]>([]);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<(typeof courses)[0] | null>(null);
+  const [selected, setSelected] = useState<CourseFull | null>(null);
+  const [loading, setLoading] = useState(true);
   const { isDark } = useTheme();
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [coursesData, gradesData] = await Promise.all([
+          courseService.getAll(),
+          gradeService.getAll(),
+        ]);
+        const mapped: CourseFull[] = coursesData.map((c) => {
+          const courseGrades = gradesData
+            .filter((g) => g.course_id === c.id)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          return {
+            ...c,
+            students: 30,
+            attended: c.attendance?.length || 0,
+            total: c.total_sessions,
+            currentGrade: courseGrades.length > 0 ? courseGrades[courseGrades.length - 1].score : 0,
+            gradeHistory: courseGrades.map((g) => g.score),
+          };
+        });
+        setCourses(mapped);
+      } catch (err) {
+        console.error("Failed to load courses:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const filtered = courses.filter(
     (c) =>

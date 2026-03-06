@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { TrendingUp, BookOpen, Clock, CheckCircle2, AlertCircle, Plus, ChevronRight, Target, Trophy, Flame, Sparkles } from "lucide-react";
 import { GPACircle } from "../components/GPACircle";
 import { GradeSparkline } from "../components/GradeSparkline";
 import { AddEntryModal } from "../components/AddEntryModal";
 import { useTheme } from "../context/ThemeContext";
+import { courseService } from "../services/course.service";
+import { gradeService } from "../services/grade.service";
 
 interface Course {
-  id: number;
+  id: string;
   name: string;
   code: string;
   instructor: string;
@@ -20,14 +22,6 @@ interface Course {
   credits: number;
 }
 
-const initialCourses: Course[] = [
-  { id: 1, name: "Data Structures & Algorithms", code: "CS 301", instructor: "Dr. Sarah Chen", color: "#6366f1", attended: 24, total: 28, currentGrade: 92, gradeHistory: [78, 82, 85, 88, 91, 92], pending: 1, credits: 4 },
-  { id: 2, name: "Machine Learning Fundamentals", code: "CS 415", instructor: "Prof. Marcus Wright", color: "#8b5cf6", attended: 20, total: 26, currentGrade: 87, gradeHistory: [80, 79, 83, 85, 86, 87], pending: 2, credits: 3 },
-  { id: 3, name: "Operating Systems", code: "CS 350", instructor: "Dr. Priya Patel", color: "#06b6d4", attended: 22, total: 25, currentGrade: 78, gradeHistory: [70, 72, 74, 76, 77, 78], pending: 1, credits: 3 },
-  { id: 4, name: "Database Management", code: "CS 380", instructor: "Prof. Alan Torres", color: "#10b981", attended: 23, total: 27, currentGrade: 95, gradeHistory: [88, 90, 91, 93, 94, 95], pending: 0, credits: 3 },
-  { id: 5, name: "Computer Networks", code: "CS 420", instructor: "Dr. Linda Zhao", color: "#f59e0b", attended: 19, total: 24, currentGrade: 82, gradeHistory: [75, 76, 78, 80, 81, 82], pending: 3, credits: 3 },
-];
-
 const recentActivity = [
   { id: 1, type: "grade", course: "CS 301", text: "Assignment 7 graded — 96%", time: "2h ago", icon: Trophy },
   { id: 2, type: "attend", course: "CS 415", text: "Attendance logged for lecture", time: "5h ago", icon: CheckCircle2 },
@@ -36,17 +30,64 @@ const recentActivity = [
 ];
 
 export function DashboardPage() {
-  const [courses, setCourses] = useState(initialCourses);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
   const { isDark } = useTheme();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [coursesData, gradesData] = await Promise.all([
+          courseService.getAll(),
+          gradeService.getAll(),
+        ]);
+
+        const mapped: Course[] = coursesData.map((c) => {
+          const courseGrades = gradesData
+            .filter((g) => g.course_id === c.id)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          const gradeHistory = courseGrades.map((g) => g.score);
+          const currentGrade = gradeHistory.length > 0 ? gradeHistory[gradeHistory.length - 1] : 0;
+          return {
+            id: c.id,
+            name: c.name,
+            code: c.code,
+            instructor: c.instructor,
+            color: c.color,
+            attended: c.attendance?.length || 0,
+            total: c.total_sessions,
+            currentGrade,
+            gradeHistory,
+            pending: 0,
+            credits: c.credits,
+          };
+        });
+        setCourses(mapped);
+      } catch (err) {
+        console.error("Failed to load dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const totalAttended = courses.reduce((s, c) => s + c.attended, 0);
   const totalClasses = courses.reduce((s, c) => s + c.total, 0);
   const totalPending = courses.reduce((s, c) => s + c.pending, 0);
   const avgGrade = courses.reduce((s, c) => s + c.currentGrade, 0) / courses.length;
-  const gpa = 3.72;
+  const gpa = courses.length > 0 ? avgGrade / 25 : 0;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
 
   const handleAddEntry = (course: Course) => {
     setSelectedCourse(course);

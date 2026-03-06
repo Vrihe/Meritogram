@@ -20,6 +20,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 const mainNavItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -49,12 +50,18 @@ export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
 
   const currentPage = allRoutes[location.pathname] ?? "Dashboard";
 
   const handleLogout = () => {
+    logout();
     navigate("/login");
   };
+
+  const userName = user?.profile?.full_name || "User";
+  const userInitials = userName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+  const userMajor = user?.profile?.major || "";
 
   const notifications = [
     { id: 1, text: "Assignment due: Data Structures — tomorrow", time: "2h ago", unread: true },
@@ -146,16 +153,16 @@ export function Layout() {
           <div className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-800 cursor-pointer transition">
             <div className="w-8 h-8 bg-neutral-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xs" style={{ fontWeight: 700 }}>
-                AJ
+                {userInitials}
               </span>
             </div>
             {sidebarOpen && (
               <>
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm truncate" style={{ fontWeight: 500 }}>
-                    Alex Johnson
+                    {userName}
                   </p>
-                  <p className="text-neutral-400 text-xs truncate">Student · CS Major</p>
+                  <p className="text-neutral-400 text-xs truncate">Student{userMajor ? ` · ${userMajor}` : ""}</p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-neutral-400 flex-shrink-0" />
               </>
@@ -277,7 +284,7 @@ export function Layout() {
             {/* Avatar */}
             <div className="w-9 h-9 bg-neutral-600 flex items-center justify-center cursor-pointer">
               <span className="text-white text-sm" style={{ fontWeight: 700 }}>
-                AJ
+                {userInitials}
               </span>
             </div>
           </div>

@@ -1,33 +1,90 @@
-import { Mail, Phone, MapPin, Calendar, GraduationCap, Award, BookOpen, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, GraduationCap, Award, BookOpen, Clock } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { courseService } from "../services/course.service";
+import { gradeService } from "../services/grade.service";
+import { attendanceService } from "../services/attendance.service";
 
 export function ProfilePage() {
+  const { user } = useAuth();
+  const [stats, setStats] = useState({ gpa: 0, credits: 0, attendanceRate: 0, courses: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [coursesData, gradesData, attendanceData] = await Promise.all([
+          courseService.getAll(),
+          gradeService.getAll(),
+          attendanceService.getAll(),
+        ]);
+
+        const totalCredits = coursesData.reduce((s, c) => s + (c.credits || 0), 0);
+
+        const gradesByCourse = new Map<string, number[]>();
+        gradesData.forEach((g) => {
+          const list = gradesByCourse.get(g.course_id) || [];
+          list.push(g.score);
+          gradesByCourse.set(g.course_id, list);
+        });
+
+        let weightedSum = 0;
+        let weightCredits = 0;
+        gradesByCourse.forEach((scores, courseId) => {
+          const course = coursesData.find((c) => c.id === courseId);
+          if (!course) return;
+          const avg = scores.reduce((s, v) => s + v, 0) / scores.length;
+          weightedSum += avg * (course.credits || 3);
+          weightCredits += course.credits || 3;
+        });
+
+        const avgGrade = weightCredits > 0 ? weightedSum / weightCredits : 0;
+
+        const presentCount = attendanceData.filter((a) => a.status === "present").length;
+        const attRate = attendanceData.length > 0 ? Math.round((presentCount / attendanceData.length) * 100) : 0;
+
+        setStats({
+          gpa: parseFloat((avgGrade / 25).toFixed(2)),
+          credits: totalCredits,
+          attendanceRate: attRate,
+          courses: coursesData.length,
+        });
+      } catch (err) {
+        console.error("Failed to load profile stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const userName = user?.profile?.full_name || "Student";
+  const userEmail = user?.email || "";
+  const userMajor = user?.profile?.major || "Undeclared";
+  const userYear = user?.academic?.year || "1st Year";
+  const userStudentId = user?.profile?.student_id || "N/A";
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Profile Header */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div className="flex items-start gap-6">
           <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-3xl">AJ</span>
+            <span className="text-white text-3xl">{userInitials}</span>
           </div>
           <div className="flex-1">
-            <h2 className="text-slate-900 dark:text-white mb-1">Alex Johnson</h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-3">Computer Science · Junior Year</p>
+            <h2 className="text-slate-900 dark:text-white mb-1">{userName}</h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-3">{userMajor} · {userYear}</p>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                 <Mail className="w-4 h-4" />
-                <span>alex.johnson@university.edu</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Phone className="w-4 h-4" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <MapPin className="w-4 h-4" />
-                <span>Stanford, CA</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <Calendar className="w-4 h-4" />
-                <span>Joined September 2023</span>
+                <span>{userEmail}</span>
               </div>
             </div>
           </div>
@@ -44,28 +101,36 @@ export function ProfilePage() {
             <GraduationCap className="w-5 h-5 text-indigo-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">GPA</p>
           </div>
-          <p className="text-2xl text-slate-900 dark:text-white">3.68</p>
+          <p className="text-2xl text-slate-900 dark:text-white">
+            {loading ? "..." : stats.gpa.toFixed(2)}
+          </p>
         </div>
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="w-5 h-5 text-blue-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">Credits</p>
           </div>
-          <p className="text-2xl text-slate-900 dark:text-white">87</p>
+          <p className="text-2xl text-slate-900 dark:text-white">
+            {loading ? "..." : stats.credits}
+          </p>
         </div>
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Award className="w-5 h-5 text-amber-500" />
-            <p className="text-xs text-slate-600 dark:text-slate-400">Rank</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">Courses</p>
           </div>
-          <p className="text-2xl text-slate-900 dark:text-white">12th</p>
+          <p className="text-2xl text-slate-900 dark:text-white">
+            {loading ? "..." : stats.courses}
+          </p>
         </div>
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-5 h-5 text-green-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">Attendance</p>
           </div>
-          <p className="text-2xl text-slate-900 dark:text-white">94%</p>
+          <p className="text-2xl text-slate-900 dark:text-white">
+            {loading ? "..." : `${stats.attendanceRate}%`}
+          </p>
         </div>
       </div>
 
@@ -76,23 +141,19 @@ export function ProfilePage() {
           <div className="space-y-3 text-sm">
             <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
               <span className="text-slate-600 dark:text-slate-400">Student ID</span>
-              <span className="text-slate-900 dark:text-white">20231045</span>
+              <span className="text-slate-900 dark:text-white">{userStudentId}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
               <span className="text-slate-600 dark:text-slate-400">Major</span>
-              <span className="text-slate-900 dark:text-white">Computer Science</span>
+              <span className="text-slate-900 dark:text-white">{userMajor}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-              <span className="text-slate-600 dark:text-slate-400">Minor</span>
-              <span className="text-slate-900 dark:text-white">Mathematics</span>
+              <span className="text-slate-600 dark:text-slate-400">Year</span>
+              <span className="text-slate-900 dark:text-white">{userYear}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-              <span className="text-slate-600 dark:text-slate-400">Expected Graduation</span>
-              <span className="text-slate-900 dark:text-white">May 2027</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-              <span className="text-slate-600 dark:text-slate-400">Academic Advisor</span>
-              <span className="text-slate-900 dark:text-white">Dr. Sarah Chen</span>
+              <span className="text-slate-600 dark:text-slate-400">Email</span>
+              <span className="text-slate-900 dark:text-white">{userEmail}</span>
             </div>
           </div>
         </div>
@@ -124,17 +185,6 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Bio Section */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 mt-6">
-        <h3 className="text-slate-900 dark:text-white mb-3">Bio</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          I'm a passionate Computer Science student with a focus on artificial intelligence and machine learning.
-          I enjoy building projects that solve real-world problems and have a particular interest in natural language
-          processing and computer vision. When I'm not coding, you can find me participating in hackathons, contributing
-          to open-source projects, or mentoring freshman students in introductory programming courses.
-        </p>
       </div>
     </div>
   );
