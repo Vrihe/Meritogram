@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core import connect_db, close_db
-from app.routes import auth_router, courses_router, code_review_router, github_router
+from app.routes import (
+    auth_router, courses_router, code_review_router, github_router,
+    profile_router, attendance_router, grades_router,
+)
 
 
 # Lifespan context manager
@@ -26,7 +29,11 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:7777", "http://localhost:3000"],  # Update with your frontend URL
+    allow_origins=[
+        "http://localhost:5173",   # Vite dev server
+        "http://localhost:7777",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,7 +41,10 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix="/api/auth")
+app.include_router(profile_router, prefix="/api")
 app.include_router(courses_router, prefix="/api")
+app.include_router(attendance_router, prefix="/api")
+app.include_router(grades_router, prefix="/api")
 app.include_router(code_review_router, prefix="/api")
 app.include_router(github_router, prefix="/api")
 

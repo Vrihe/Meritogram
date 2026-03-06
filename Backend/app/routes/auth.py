@@ -11,17 +11,19 @@ router = APIRouter(tags=["auth"])
 settings = get_settings()
 
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=Token)
 async def register(user: UserCreate, db=Depends(get_db)):
-    """Register new user"""
+    """Register new user and return token"""
     try:
         new_user = await create_user(user, db)
-        return UserResponse(
-            id=str(new_user.id),
-            email=new_user.email,
-            full_name=new_user.full_name,
-            created_at=new_user.created_at
+
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": new_user.id},
+            expires_delta=access_token_expires
         )
+
+        return Token(access_token=access_token, token_type="bearer", user=new_user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -36,13 +38,13 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.id},
         expires_delta=access_token_expires
     )
-    
+
     return Token(access_token=access_token, token_type="bearer", user=user)
 
 
