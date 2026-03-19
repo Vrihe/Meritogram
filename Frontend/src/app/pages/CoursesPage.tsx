@@ -57,12 +57,12 @@ export function CoursesPage() {
       c.instructor.toLowerCase().includes(search.toLowerCase())
   );
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const cardHover = isDark ? "hover:border-slate-600" : "hover:border-slate-300";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const textSub = isDark ? "text-slate-500" : "text-slate-400";
-  const inputBg = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const inputBg = isDark ? "bg-card border-border" : "bg-card border-border";
   const inputText = isDark ? "text-slate-200 placeholder-slate-500" : "text-slate-700 placeholder-slate-400";
   const tagBg = isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-500";
   const progressBg = isDark ? "bg-slate-700" : "bg-slate-100";
@@ -114,7 +114,7 @@ export function CoursesPage() {
                   isSelected
                     ? isDark ? "border-indigo-700 shadow-indigo-900/30 shadow-md" : "border-indigo-300 shadow-indigo-100 shadow-md"
                     : `${card} ${cardHover}`
-                } ${isSelected ? (isDark ? "bg-slate-800" : "bg-white") : card}`}
+                } ${isSelected ? (isDark ? "bg-card" : "bg-white") : card}`}
               >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 flex items-center justify-center flex-shrink-0" style={{ background: course.color + "15" }}>

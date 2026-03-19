@@ -87,7 +87,7 @@ export function CodeReviewPage() {
       case "success":
         return "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800";
       default:
-        return "bg-slate-50 dark:bg-slate-800";
+        return "bg-card";
     }
   };
 
@@ -102,8 +102,8 @@ export function CodeReviewPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Code Editor Panel */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div className="border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between">
+        <div className="bg-card border border-border">
+          <div className="border-b border-border px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Code className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -140,8 +140,8 @@ export function CodeReviewPage() {
         </div>
 
         {/* Feedback Panel */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div className="border-b border-slate-200 dark:border-slate-700 px-4 py-3">
+        <div className="bg-card border border-border">
+          <div className="border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-indigo-500" />
               <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -205,25 +205,25 @@ export function CodeReviewPage() {
       {/* Quick Stats */}
       {feedback.length > 0 && (
         <div className="mt-6 grid grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+          <div className="bg-card border border-border p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Total Issues</p>
             <p className="text-2xl text-slate-900 dark:text-white">
               {feedback.length}
             </p>
           </div>
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+          <div className="bg-card border border-border p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Errors</p>
             <p className="text-2xl text-red-600 dark:text-red-400">
               {feedback.filter((f) => f.type === "error").length}
             </p>
           </div>
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+          <div className="bg-card border border-border p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Warnings</p>
             <p className="text-2xl text-amber-600 dark:text-amber-400">
               {feedback.filter((f) => f.type === "warning").length}
             </p>
           </div>
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+          <div className="bg-card border border-border p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Suggestions</p>
             <p className="text-2xl text-blue-600 dark:text-blue-400">
               {feedback.filter((f) => f.type === "info").length}

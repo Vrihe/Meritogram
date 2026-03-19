@@ -79,7 +79,7 @@ export function GitHubPage() {
         <>
           {/* Stats */}
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <div className="bg-card border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-4 h-4 text-neutral-500" />
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Total Contributions</p>
@@ -87,7 +87,7 @@ export function GitHubPage() {
               <p className="text-2xl text-neutral-900 dark:text-white">{totalContributions}</p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">Last year</p>
             </div>
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <div className="bg-card border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <GitBranch className="w-4 h-4 text-neutral-500" />
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Repositories</p>
@@ -95,7 +95,7 @@ export function GitHubPage() {
               <p className="text-2xl text-neutral-900 dark:text-white">{repos.length}</p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">Public repos</p>
             </div>
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <div className="bg-card border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Star className="w-4 h-4 text-neutral-500" />
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Total Stars</p>
@@ -105,7 +105,7 @@ export function GitHubPage() {
               </p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">Across all repos</p>
             </div>
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <div className="bg-card border-border p-4">
               <div className="flex items-center gap-2 mb-2">
                 <GitPullRequest className="w-4 h-4 text-neutral-500" />
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Pull Requests</p>
@@ -116,7 +116,7 @@ export function GitHubPage() {
           </div>
 
           {/* Contribution Heatmap */}
-          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 mb-6">
+          <div className="bg-card border-border p-6 mb-6">
             <h3 className="text-neutral-900 dark:text-white mb-4">Contribution Activity</h3>
             <div className="overflow-x-auto">
               <div className="inline-flex gap-1">
@@ -144,11 +144,11 @@ export function GitHubPage() {
 
           <div className="grid grid-cols-2 gap-6">
             {/* Repositories */}
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5">
+            <div className="bg-card border-border p-5">
               <h3 className="text-neutral-900 dark:text-white mb-4">Top Repositories</h3>
               <div className="space-y-3">
                 {repos.map((repo, idx) => (
-                  <div key={idx} className="p-3 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition">
+                  <div key={idx} className="p-3 border border-border hover:border-neutral-300 dark:hover:border-neutral-700 transition">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Github className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
@@ -175,7 +175,7 @@ export function GitHubPage() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5">
+            <div className="bg-card border-border p-5">
               <h3 className="text-neutral-900 dark:text-white mb-4">Recent Activity</h3>
               <div className="space-y-3">
                 {recentActivity.map((activity, idx) => (
@@ -198,7 +198,7 @@ export function GitHubPage() {
           </div>
         </>
       ) : (
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-12 text-center">
+        <div className="bg-card border-border p-12 text-center">
           <Github className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
           <h3 className="text-neutral-900 dark:text-white mb-2">Connect Your GitHub Account</h3>
           <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-6">

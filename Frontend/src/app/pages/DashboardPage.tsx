@@ -126,7 +126,7 @@ export function DashboardPage() {
     return { label: "D", bg: isDark ? "bg-red-900/40 text-red-400" : "bg-red-100 text-red-700" };
   };
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = isDark ? "bg-card border-border" : "bg-card border-border";
   const tableHeader = isDark ? "bg-slate-700/50 border-slate-700" : "bg-slate-50 border-slate-200";
   const rowHover = isDark ? "hover:bg-slate-700/40" : "hover:bg-slate-50/80";
   const divider = isDark ? "divide-slate-700" : "divide-slate-100";
@@ -356,7 +356,7 @@ function StatCard({ isDark, icon: Icon, iconBg, iconColor, label, value, sub, pr
   label: string; value: number | string; sub: string;
   progress: number | null; progressColor?: string; alert?: boolean;
 }) {
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const progressBg = isDark ? "bg-slate-700" : "bg-slate-100";
@@ -383,7 +383,7 @@ function StatCard({ isDark, icon: Icon, iconBg, iconColor, label, value, sub, pr
 function MiniStat({ isDark, icon: Icon, label, value, color, bg }: {
   isDark: boolean; icon: React.ElementType; label: string; value: string; color: string; bg: string;
 }) {
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   return (

@@ -174,7 +174,7 @@ export function Layout() {
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-6 py-3 flex items-center gap-4 z-10 flex-shrink-0">
+        <header className="bg-card border-b border-border px-6 py-3 flex items-center gap-4 z-10 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
@@ -235,7 +235,7 @@ export function Layout() {
               </button>
 
               {notifOpen && (
-                <div className="absolute right-0 top-12 w-80 bg-white dark:bg-neutral-900 shadow-2xl border border-neutral-200 dark:border-neutral-800 z-50 overflow-hidden">
+                <div className="absolute right-0 top-12 w-80 bg-card shadow-2xl border border-border z-50 overflow-hidden">
                   <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
                     <p
                       className="text-neutral-900 dark:text-neutral-100 text-sm"

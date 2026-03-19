@@ -29,7 +29,7 @@ export function SettingsPage() {
     setForm((f) => ({ ...f, [key]: !f[key as keyof typeof form] }));
   };
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const inputCls = isDark
@@ -191,7 +191,7 @@ export function SettingsPage() {
 function SettingsSection({ title, icon: Icon, iconBg, iconColor, isDark, children }: {
   title: string; icon: React.ElementType; iconBg: string; iconColor: string; isDark: boolean; children: React.ReactNode;
 }) {
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const border = isDark ? "border-slate-700" : "border-slate-100";
   return (

@@ -92,28 +92,28 @@ export function GroupsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-4 h-4 text-neutral-500" />
             <p className="text-xs text-neutral-600 dark:text-neutral-400">Total Members</p>
           </div>
           <p className="text-2xl text-neutral-900 dark:text-white">{stats.total}</p>
         </div>
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <UserIcon className="w-4 h-4 text-neutral-500" />
             <p className="text-xs text-neutral-600 dark:text-neutral-400">Students</p>
           </div>
           <p className="text-2xl text-neutral-900 dark:text-white">{stats.students}</p>
         </div>
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Shield className="w-4 h-4 text-neutral-500" />
             <p className="text-xs text-neutral-600 dark:text-neutral-400">Teachers</p>
           </div>
           <p className="text-2xl text-neutral-900 dark:text-white">{stats.teachers}</p>
         </div>
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-4 h-4 text-neutral-500" />
             <p className="text-xs text-neutral-600 dark:text-neutral-400">Unassigned</p>
@@ -124,7 +124,7 @@ export function GroupsPage() {
 
       {/* Filters */}
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex-1 max-w-md flex items-center gap-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 px-3 py-2">
+        <div className="flex-1 max-w-md flex items-center gap-2 bg-card border-border px-3 py-2">
           <Search className="w-4 h-4 text-neutral-400" />
           <input
             type="text"
@@ -137,7 +137,7 @@ export function GroupsPage() {
         <select
           value={selectedGroup}
           onChange={(e) => setSelectedGroup(e.target.value)}
-          className="px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white outline-none"
+          className="px-3 py-2 bg-card border-border text-neutral-900 dark:text-white outline-none"
         >
           <option value="All Groups">All Groups</option>
           {groups.map((group) => (
@@ -150,8 +150,8 @@ export function GroupsPage() {
       </div>
 
       {/* Student List */}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-        <div className="border-b border-neutral-200 dark:border-neutral-800 px-6 py-4">
+      <div className="bg-card border-border">
+        <div className="border-b border-border px-6 py-4">
           <h3 className="text-neutral-900 dark:text-white">Members</h3>
         </div>
         <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -217,7 +217,7 @@ export function GroupsPage() {
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsAddModalOpen(false)} />
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 w-full max-w-md">
+            <div className="bg-card border-border p-6 w-full max-w-md">
               <h3 className="text-neutral-900 dark:text-white mb-4">Add New Member</h3>
               <div className="space-y-4">
                 <div>
@@ -284,7 +284,7 @@ export function GroupsPage() {
                 </button>
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 px-4 py-2 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
+                  className="flex-1 px-4 py-2 border border-border text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
                 >
                   Cancel
                 </button>

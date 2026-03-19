@@ -41,7 +41,7 @@ export function SchedulePage() {
 
   const weekLabel = week === 0 ? "This Week" : week === 1 ? "Next Week" : week === -1 ? "Last Week" : `Week ${week > 0 ? "+" : ""}${week}`;
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const gridBorder = isDark ? "border-slate-700" : "border-slate-200";

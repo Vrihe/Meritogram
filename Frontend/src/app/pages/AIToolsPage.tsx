@@ -57,7 +57,7 @@ function GradePredictorTool() {
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
   };
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const inputCls = isDark
     ? "bg-slate-700 border-slate-600 text-slate-200 focus:border-indigo-400"
     : "bg-slate-50 border-slate-200 text-slate-800 focus:border-indigo-400";
@@ -219,7 +219,7 @@ function StudyPlannerTool() {
   const [generated, setGenerated] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const inputCls = isDark
     ? "bg-slate-700 border-slate-600 text-slate-200 focus:border-indigo-400"
     : "bg-slate-50 border-slate-200 text-slate-800 focus:border-indigo-400";
@@ -402,7 +402,7 @@ function AssignmentAssistant() {
     }, 1400);
   };
 
-  const card = isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200";
+  const card = "bg-card border-border";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const inputCls = isDark
@@ -496,7 +496,7 @@ export function AIToolsPage() {
   const [activeTab, setActiveTab] = useState<ToolTab>("code-review");
   const { isDark } = useTheme();
 
-  const tabBg = isDark ? "bg-slate-800" : "bg-white";
+  const tabBg = isDark ? "bg-card" : "bg-white";
   const activeTabCls = isDark
     ? "bg-slate-700 text-indigo-400 shadow-sm"
     : "bg-white text-indigo-700 shadow-sm";
@@ -508,7 +508,7 @@ export function AIToolsPage() {
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-5">
       {/* Header */}
-      <div className={`rounded-2xl border shadow-sm p-5 flex items-center gap-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+      <div className={`rounded-2xl border shadow-sm p-5 flex items-center gap-4 bg-card border-border`}>
         <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
@@ -564,7 +564,7 @@ export function AIToolsPage() {
       {activeTab === "assistant" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <AssignmentAssistant />
-          <div className={`rounded-2xl border shadow-sm p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+          <div className={`rounded-2xl border shadow-sm p-5 bg-card border-border`}>
             <h3
               className={`${isDark ? "text-slate-100" : "text-slate-900"} mb-4`}
               style={{ fontWeight: 700, fontSize: "0.95rem" }}

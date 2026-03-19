@@ -73,7 +73,7 @@ export function ProfilePage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Profile Header */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 mb-6">
+      <div className="bg-card border border-border p-6 mb-6">
         <div className="flex items-start gap-6">
           <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center flex-shrink-0">
             <span className="text-white text-3xl">{userInitials}</span>
@@ -96,7 +96,7 @@ export function ProfilePage() {
 
       {/* Academic Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-card border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <GraduationCap className="w-5 h-5 text-indigo-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">GPA</p>
@@ -105,7 +105,7 @@ export function ProfilePage() {
             {loading ? "..." : stats.gpa.toFixed(2)}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-card border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="w-5 h-5 text-blue-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">Credits</p>
@@ -114,7 +114,7 @@ export function ProfilePage() {
             {loading ? "..." : stats.credits}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-card border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Award className="w-5 h-5 text-amber-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">Courses</p>
@@ -123,7 +123,7 @@ export function ProfilePage() {
             {loading ? "..." : stats.courses}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+        <div className="bg-card border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-5 h-5 text-green-500" />
             <p className="text-xs text-slate-600 dark:text-slate-400">Attendance</p>
@@ -136,22 +136,22 @@ export function ProfilePage() {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Academic Information */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
+        <div className="bg-card border border-border p-5">
           <h3 className="text-slate-900 dark:text-white mb-4">Academic Information</h3>
           <div className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between py-2 border-b border-border">
               <span className="text-slate-600 dark:text-slate-400">Student ID</span>
               <span className="text-slate-900 dark:text-white">{userStudentId}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between py-2 border-b border-border">
               <span className="text-slate-600 dark:text-slate-400">Major</span>
               <span className="text-slate-900 dark:text-white">{userMajor}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between py-2 border-b border-border">
               <span className="text-slate-600 dark:text-slate-400">Year</span>
               <span className="text-slate-900 dark:text-white">{userYear}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between py-2 border-b border-border">
               <span className="text-slate-600 dark:text-slate-400">Email</span>
               <span className="text-slate-900 dark:text-white">{userEmail}</span>
             </div>
@@ -159,7 +159,7 @@ export function ProfilePage() {
         </div>
 
         {/* Achievements */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
+        <div className="bg-card border border-border p-5">
           <h3 className="text-slate-900 dark:text-white mb-4">Recent Achievements</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">

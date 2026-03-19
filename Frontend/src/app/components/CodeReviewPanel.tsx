@@ -87,7 +87,7 @@ export function CodeReviewPanel() {
 
   const sidebarBg = isDark ? "bg-slate-900" : "bg-slate-50";
   const cardBorder = isDark ? "border-slate-700" : "border-slate-200";
-  const headerBg = isDark ? "bg-slate-800" : "bg-white";
+  const headerBg = isDark ? "bg-card" : "bg-white";
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
   const sidebarDivider = isDark ? "divide-slate-700" : "divide-slate-100";

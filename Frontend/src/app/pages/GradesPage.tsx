@@ -116,7 +116,7 @@ export function GradesPage() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-card border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-slate-600 dark:text-slate-400">Cumulative GPA</p>
             <Award className="w-5 h-5 text-indigo-500" />
@@ -127,7 +127,7 @@ export function GradesPage() {
           <p className="text-xs text-green-600 dark:text-green-400 mt-1">Current semester</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-card border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-slate-600 dark:text-slate-400">Total Credits</p>
             <Award className="w-5 h-5 text-blue-500" />
@@ -138,7 +138,7 @@ export function GradesPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">This semester</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6">
+        <div className="bg-card border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-slate-600 dark:text-slate-400">Courses</p>
             <Award className="w-5 h-5 text-amber-500" />
@@ -155,7 +155,7 @@ export function GradesPage() {
         {courses.map((course) => (
           <div
             key={course.id}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5"
+            className="bg-card border border-border p-5"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">

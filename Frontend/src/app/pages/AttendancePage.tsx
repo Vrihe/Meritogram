@@ -85,7 +85,7 @@ export function AttendancePage() {
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Attendance Rate</p>
             <Calendar className="w-5 h-5 text-neutral-500" />
@@ -99,7 +99,7 @@ export function AttendancePage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Present</p>
             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -110,7 +110,7 @@ export function AttendancePage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Absent</p>
             <XCircle className="w-5 h-5 text-red-600" />
@@ -121,7 +121,7 @@ export function AttendancePage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+        <div className="bg-card border-border p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Late</p>
             <Clock className="w-5 h-5 text-amber-600" />
@@ -139,7 +139,7 @@ export function AttendancePage() {
         <select
           value={selectedCourse}
           onChange={(e) => setSelectedCourse(e.target.value)}
-          className="px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white outline-none"
+          className="px-3 py-2 bg-card border-border text-neutral-900 dark:text-white outline-none"
         >
           {courses.map((course) => (
             <option key={course} value={course}>
@@ -150,8 +150,8 @@ export function AttendancePage() {
       </div>
 
       {/* Attendance Records */}
-      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-        <div className="border-b border-neutral-200 dark:border-neutral-800 px-6 py-4">
+      <div className="bg-card border-border">
+        <div className="border-b border-border px-6 py-4">
           <h3 className="text-neutral-900 dark:text-white">Attendance Records</h3>
         </div>
         <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
