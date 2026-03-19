@@ -45,6 +45,9 @@ export const authService = {
   login: (email: string, password: string) =>
     api.post<LoginResponse>('/auth/login', { email, password }),
 
+  loginWithGoogle: (id_token: string) =>
+    api.post<LoginResponse>('/auth/google', { id_token }),
+
   register: (data: { email: string; password: string; full_name: string; student_id?: string; major?: string }) =>
     api.post<LoginResponse>('/auth/register', data),
 

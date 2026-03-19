@@ -7,5 +7,11 @@
 
   Run `npm i` to install the dependencies.
 
+  Set Google OAuth client id in `.env.development`:
+
+  ```
+  VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+  ```
+
   Run `npm run dev` to start the development server.
   

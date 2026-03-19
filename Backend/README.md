@@ -22,6 +22,7 @@ cp .env.example .env
 MONGO_URL=mongodb+srv://db_user:<your_password>@cluster0.grd1rwb.mongodb.net/
 MONGO_DB_NAME=student_learning_db
 SECRET_KEY=your-secret-key-here
+GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
 ### 3. Запустить сервер
@@ -43,6 +44,7 @@ uvicorn main:app --reload
 ### Authentication
 - `POST /api/auth/register` - Регистрация пользователя
 - `POST /api/auth/login` - Вход пользователя
+- `POST /api/auth/google` - Вход/регистрация через Google
 - `GET /api/auth/me` - Получить текущего пользователя
 
 ### Courses

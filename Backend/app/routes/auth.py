@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import timedelta
-from ..models import UserCreate, UserLogin, Token, UserResponse
+from ..models import UserCreate, UserLogin, GoogleAuthRequest, Token, UserResponse
 from ..services import (
-    create_user, authenticate_user, create_access_token, get_current_user
+    create_user, authenticate_user, authenticate_google_user, create_access_token, get_current_user
 )
 from ..core.config import get_settings
 from ..core.database import get_db
@@ -38,6 +38,23 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.id},
+        expires_delta=access_token_expires
+    )
+
+    return Token(access_token=access_token, token_type="bearer", user=user)
+
+
+@router.post("/google", response_model=Token)
+async def google_login(payload: GoogleAuthRequest, db=Depends(get_db)):
+    """Authenticate or register user using Google ID token."""
+    try:
+        user = await authenticate_google_user(payload.id_token, db)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

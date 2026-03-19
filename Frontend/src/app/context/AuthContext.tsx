@@ -6,6 +6,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (data: { email: string; password: string; full_name: string }) => Promise<void>;
   logout: () => void;
   setUser: (user: User) => void;
@@ -14,25 +15,24 @@ interface AuthState {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>({ email: 'test@test.com', full_name: 'Test User', id: '1' } as any);
-  const [token, setToken] = useState<string | null>('fake-token');
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    /*
     if (token) {
       authService.getMe()
         .then((u) => setUser(u))
         .catch(() => {
           localStorage.removeItem('token');
           setToken(null);
+          setUser(null);
         })
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
     }
-    */
-  }, []);
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     const res = await authService.login(email, password);
@@ -48,6 +48,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    const res = await authService.loginWithGoogle(idToken);
+    localStorage.setItem('token', res.access_token);
+    setToken(res.access_token);
+    setUser(res.user);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -55,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, loginWithGoogle, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

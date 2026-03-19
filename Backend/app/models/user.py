@@ -48,6 +48,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class GoogleAuthRequest(BaseModel):
+    id_token: str
+
+
 class UserResponse(BaseModel):
     id: str = Field(alias="_id")
     email: EmailStr

@@ -1,7 +1,37 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Mail, Lock, GraduationCap, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: {
+              type?: "standard" | "icon";
+              theme?: "outline" | "filled_blue" | "filled_black";
+              size?: "large" | "medium" | "small";
+              text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+              shape?: "rectangular" | "pill" | "circle" | "square";
+              logo_alignment?: "left" | "center";
+              width?: string;
+            }
+          ) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,8 +39,67 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) {
+      return;
+    }
+
+    const initGoogle = () => {
+      if (!window.google || !googleButtonRef.current) {
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async ({ credential }) => {
+          setGoogleLoading(true);
+          setError("");
+          try {
+            await loginWithGoogle(credential);
+            navigate("/");
+          } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Google login failed");
+          } finally {
+            setGoogleLoading(false);
+          }
+        },
+      });
+
+      googleButtonRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        logo_alignment: "left",
+        width: "280",
+      });
+    };
+
+    const existingScript = document.getElementById("google-identity-script") as HTMLScriptElement | null;
+    if (existingScript) {
+      if (window.google) {
+        initGoogle();
+      } else {
+        existingScript.addEventListener("load", initGoogle, { once: true });
+      }
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "google-identity-script";
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initGoogle;
+    document.head.appendChild(script);
+  }, [loginWithGoogle, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,13 +217,17 @@ export function LoginPage() {
           </div>
 
           {/* SSO Options */}
-          <div className="grid grid-cols-2 gap-3">
-            <button className="py-2.5 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300 text-sm">
-              Google
-            </button>
-            <button className="py-2.5 border border-border hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300 text-sm">
-              Microsoft
-            </button>
+          <div className="flex flex-col items-center gap-2">
+            {GOOGLE_CLIENT_ID ? (
+              <div ref={googleButtonRef} className="w-full flex justify-center" />
+            ) : (
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+                Google login is unavailable: set VITE_GOOGLE_CLIENT_ID in environment.
+              </p>
+            )}
+            {googleLoading && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">Signing in with Google...</p>
+            )}
           </div>
 
           {/* Sign Up Link */}
