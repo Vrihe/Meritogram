@@ -2,23 +2,7 @@ import { useState } from "react";
 import { Github, GitBranch, Star, GitPullRequest, Calendar, ExternalLink } from "lucide-react";
 
 // Generate mock contribution data for the past 365 days
-const generateContributions = () => {
-  const data = [];
-  const today = new Date();
-  for (let i = 364; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const count = Math.floor(Math.random() * 10); // 0-9 contributions
-    data.push({
-      date: date.toISOString().split('T')[0],
-      count,
-      level: count === 0 ? 0 : count <= 2 ? 1 : count <= 5 ? 2 : count <= 7 ? 3 : 4
-    });
-  }
-  return data;
-};
-
-const contributions = generateContributions();
+const contributions: any[] = [];
 
 const repos = [
   { name: "student-portal", language: "TypeScript", stars: 23, lastCommit: "2 hours ago", url: "#" },
@@ -215,3 +199,4 @@ export function GitHubPage() {
     </div>
   );
 }
+

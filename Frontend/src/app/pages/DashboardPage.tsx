@@ -6,7 +6,8 @@ import { GradeSparkline } from "../components/GradeSparkline";
 import { AddEntryModal } from "../components/AddEntryModal";
 import { useTheme } from "../context/ThemeContext";
 import { courseService } from "../services/course.service";
-import { gradeService } from "../services/grade.service";
+import { gradeService, GradeRecord } from "../services/grade.service";
+import { attendanceService, AttendanceRecord } from "../services/attendance.service";
 
 interface Course {
   id: string;
@@ -22,15 +23,9 @@ interface Course {
   credits: number;
 }
 
-const recentActivity = [
-  { id: 1, type: "grade", course: "CS 301", text: "Assignment 7 graded — 96%", time: "2h ago", icon: Trophy },
-  { id: 2, type: "attend", course: "CS 415", text: "Attendance logged for lecture", time: "5h ago", icon: CheckCircle2 },
-  { id: 3, type: "pending", course: "CS 420", text: "Lab Report due in 2 days", time: "1d ago", icon: AlertCircle },
-  { id: 4, type: "grade", course: "CS 380", text: "Quiz 5 graded — 100%", time: "2d ago", icon: Trophy },
-];
-
 export function DashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,9 +35,10 @@ export function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [coursesData, gradesData] = await Promise.all([
+        const [coursesData, gradesData, attendanceData] = await Promise.all([
           courseService.getAll(),
           gradeService.getAll(),
+          attendanceService.getAll(),
         ]);
 
         const mapped: Course[] = coursesData.map((c) => {
@@ -51,13 +47,14 @@ export function DashboardPage() {
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
           const gradeHistory = courseGrades.map((g) => g.score);
           const currentGrade = gradeHistory.length > 0 ? gradeHistory[gradeHistory.length - 1] : 0;
+          
           return {
             id: c.id,
             name: c.name,
             code: c.code,
             instructor: c.instructor,
             color: c.color,
-            attended: c.attendance?.length || 0,
+            attended: attendanceData.filter((a) => a.course_id === c.id && a.status === "present").length || 0,
             total: c.total_sessions,
             currentGrade,
             gradeHistory,
@@ -66,6 +63,31 @@ export function DashboardPage() {
           };
         });
         setCourses(mapped);
+
+        const mergedActivities = [
+          ...gradesData.map((g) => ({
+            id: `g-${g.id}`,
+            date: new Date(g.created_at || g.date),
+            type: "grade",
+            course: g.course_code,
+            text: `${g.name} graded — ${g.score}%`,
+            icon: Trophy
+          })),
+          ...attendanceData.map((a) => ({
+            id: `a-${a.id}`,
+            date: new Date(a.created_at || a.date),
+            type: "attend",
+            course: a.course_code,
+            text: `Attendance logged: ${a.status}`,
+            icon: CheckCircle2
+          }))
+        ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 5);
+
+        setActivities(mergedActivities.map(a => {
+          const diffHour = Math.floor((new Date().getTime() - a.date.getTime()) / (1000 * 60 * 60));
+          const timeStr = diffHour < 24 ? `${diffHour}h ago` : `${Math.floor(diffHour / 24)}d ago`;
+          return { ...a, time: timeStr };
+        }));
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -78,7 +100,8 @@ export function DashboardPage() {
   const totalAttended = courses.reduce((s, c) => s + c.attended, 0);
   const totalClasses = courses.reduce((s, c) => s + c.total, 0);
   const totalPending = courses.reduce((s, c) => s + c.pending, 0);
-  const avgGrade = courses.reduce((s, c) => s + c.currentGrade, 0) / courses.length;
+  const totalCredits = courses.reduce((s, c) => s + c.credits, 0);
+  const avgGrade = courses.length > 0 ? courses.reduce((s, c) => s + c.currentGrade, 0) / courses.length : 0;
   const gpa = courses.length > 0 ? avgGrade / 25 : 0;
 
   if (loading) {
@@ -157,17 +180,17 @@ export function DashboardPage() {
 
           {/* Quick Stats */}
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard isDark={isDark} icon={BookOpen} iconBg={isDark ? "bg-indigo-900/50" : "bg-indigo-100"} iconColor="text-indigo-500" label="Classes Attended" value={totalAttended} sub={`of ${totalClasses} total`} progress={(totalAttended / totalClasses) * 100} progressColor="#6366f1" />
+            <StatCard isDark={isDark} icon={BookOpen} iconBg={isDark ? "bg-indigo-900/50" : "bg-indigo-100"} iconColor="text-indigo-500" label="Classes Attended" value={totalAttended} sub={`of ${totalClasses} total`} progress={totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0} progressColor="#6366f1" />
             <StatCard isDark={isDark} icon={Clock} iconBg={isDark ? "bg-amber-900/40" : "bg-amber-100"} iconColor="text-amber-500" label="Pending Assignments" value={totalPending} sub="across all courses" progress={null} alert={totalPending > 3} />
-            <StatCard isDark={isDark} icon={Target} iconBg={isDark ? "bg-emerald-900/40" : "bg-emerald-100"} iconColor="text-emerald-500" label="Overall Progress" value={`${Math.round(avgGrade)}%`} sub="average grade" progress={avgGrade} progressColor="#10b981" />
+            <StatCard isDark={isDark} icon={Target} iconBg={isDark ? "bg-emerald-900/40" : "bg-emerald-100"} iconColor="text-emerald-500" label="Overall Progress" value={courses.length > 0 ? `${Math.round(avgGrade)}%` : '0%'} sub="average grade" progress={avgGrade} progressColor="#10b981" />
           </div>
 
           {/* Mini stats row */}
           <div className="lg:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <MiniStat isDark={isDark} icon={Flame} label="Study Streak" value="12 days" color="text-orange-500" bg={isDark ? "bg-orange-900/30" : "bg-orange-50"} />
-            <MiniStat isDark={isDark} icon={Trophy} label="Assignments Done" value="34 / 41" color="text-violet-500" bg={isDark ? "bg-violet-900/30" : "bg-violet-50"} />
-            <MiniStat isDark={isDark} icon={CheckCircle2} label="Credits Enrolled" value="16 cr." color="text-cyan-500" bg={isDark ? "bg-cyan-900/30" : "bg-cyan-50"} />
-            <MiniStat isDark={isDark} icon={TrendingUp} label="Rank in Class" value="#7 / 92" color="text-indigo-500" bg={isDark ? "bg-indigo-900/30" : "bg-indigo-50"} />
+            <MiniStat isDark={isDark} icon={CheckCircle2} label="Courses Enrolled" value={`${courses.length} courses`} color="text-cyan-500" bg={isDark ? "bg-cyan-900/30" : "bg-cyan-50"} />
+            <MiniStat isDark={isDark} icon={Trophy} label="Total Credits" value={`${totalCredits} cr.`} color="text-violet-500" bg={isDark ? "bg-violet-900/30" : "bg-violet-50"} />
+            <MiniStat isDark={isDark} icon={BookOpen} label="Total Classes" value={`${totalClasses} classes`} color="text-indigo-500" bg={isDark ? "bg-indigo-900/30" : "bg-indigo-50"} />
+            <MiniStat isDark={isDark} icon={Target} label="Completed Classes" value={`${totalAttended} / ${totalClasses}`} color="text-emerald-500" bg={isDark ? "bg-emerald-900/30" : "bg-emerald-50"} />
           </div>
         </div>
       </section>
@@ -284,31 +307,30 @@ export function DashboardPage() {
           <div className={`rounded-2xl border shadow-sm p-5 ${card}`}>
             <h3 className={textPrimary} style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>Recent Activity</h3>
             <div className="space-y-3">
-              {recentActivity.map((a) => {
-                const Icon = a.icon;
-                return (
-                  <div key={a.id} className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      a.type === "grade" ? isDark ? "bg-emerald-900/40" : "bg-emerald-100"
-                      : a.type === "attend" ? isDark ? "bg-indigo-900/40" : "bg-indigo-100"
-                      : isDark ? "bg-amber-900/40" : "bg-amber-100"
-                    }`}>
-                      <Icon className={`w-4 h-4 ${
-                        a.type === "grade" ? "text-emerald-500"
-                        : a.type === "attend" ? "text-indigo-500"
-                        : "text-amber-500"
-                      }`} />
+                {activities.length > 0 ? activities.map((a) => {
+                  const Icon = a.icon;
+                  return (
+                    <div key={a.id} className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        a.type === "grade" ? isDark ? "bg-emerald-900/40" : "bg-emerald-100"
+                        : a.type === "attend" ? isDark ? "bg-indigo-900/40" : "bg-indigo-100"
+                        : isDark ? "bg-amber-900/40" : "bg-amber-100"
+                      }`}>
+                        <Icon className={`w-4 h-4 ${
+                          a.type === "grade" ? "text-emerald-500"
+                          : a.type === "attend" ? "text-indigo-500"
+                          : "text-amber-500"
+                        }`} />
+                      </div>
+                      <div className="flex-1">
+                        <p className={`${isDark ? "text-slate-300" : "text-slate-700"} text-xs`} style={{ fontWeight: 500 }}>{a.text}</p>
+                        <p className={`${textSub} text-xs mt-0.5`}>{a.course} · {a.time}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className={`${isDark ? "text-slate-300" : "text-slate-700"} text-xs`} style={{ fontWeight: 500 }}>{a.text}</p>
-                      <p className={`${textSub} text-xs mt-0.5`}>{a.course} · {a.time}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
+                  );
+                }) : (
+                  <p className="text-xs text-slate-500">No recent activity.</p>
+                )}
           {/* Upcoming Deadlines */}
           <div className={`rounded-2xl border shadow-sm p-5 ${card}`}>
             <h3 className={textPrimary} style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>Upcoming Deadlines</h3>

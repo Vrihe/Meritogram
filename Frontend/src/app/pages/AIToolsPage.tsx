@@ -226,12 +226,7 @@ function StudyPlannerTool() {
   const textPrimary = isDark ? "text-slate-100" : "text-slate-900";
   const textMuted = isDark ? "text-slate-400" : "text-slate-500";
 
-  const planData = [
-    { day: "Mon Feb 23", tasks: ["Review lecture notes (Ch. 7–9)", "Practice problems × 10"], hours: 2, done: false },
-    { day: "Tue Feb 24", tasks: ["Watch supplementary videos", "Complete practice quiz"], hours: 2.5, done: false },
-    { day: "Wed Feb 25", tasks: ["Deep dive: weak areas", "Flashcard review session"], hours: 3, done: false },
-    { day: "Thu Feb 26", tasks: ["Mock exam (timed)", "Review mistakes"], hours: 2.5, done: false },
-  ];
+  const planData: any[] = [];
 
   const handleGenerate = () => {
     if (!topic.trim()) return;
@@ -594,3 +589,4 @@ export function AIToolsPage() {
     </div>
   );
 }
+

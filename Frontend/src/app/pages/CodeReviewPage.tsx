@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { codeReviewService } from "../services/codeReview.service";
 import { Code, Play, CheckCircle, AlertTriangle, Info, Loader2 } from "lucide-react";
+import { codeReviewService } from "../services/codeReview.service";
 
 const SAMPLE_CODE = `function calculateGPA(grades) {
   let sum = 0;
@@ -234,3 +236,5 @@ export function CodeReviewPage() {
     </div>
   );
 }
+
+

@@ -10,16 +10,7 @@ interface Student {
   avatar?: string;
 }
 
-const initialStudents: Student[] = [
-  { id: "1", name: "Alex Johnson", email: "alex.j@uni.edu", role: "student", group: "Group A" },
-  { id: "2", name: "Sarah Chen", email: "sarah.c@uni.edu", role: "teacher", group: "Group A" },
-  { id: "3", name: "Mike Torres", email: "mike.t@uni.edu", role: "student", group: "Group A" },
-  { id: "4", name: "Emma Wilson", email: "emma.w@uni.edu", role: "student", group: "Group B" },
-  { id: "5", name: "James Brown", email: "james.b@uni.edu", role: "student", group: "Group B" },
-  { id: "6", name: "Lisa Anderson", email: "lisa.a@uni.edu", role: "teacher", group: "Group B" },
-  { id: "7", name: "David Kim", email: "david.k@uni.edu", role: "student" },
-  { id: "8", name: "Maria Garcia", email: "maria.g@uni.edu", role: "student" },
-];
+const initialStudents: Student[] = [];
 
 const groups = ["Group A", "Group B", "Group C"];
 
@@ -296,3 +287,4 @@ export function GroupsPage() {
     </div>
   );
 }
+

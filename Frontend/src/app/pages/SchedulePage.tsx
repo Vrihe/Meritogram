@@ -17,19 +17,7 @@ interface ClassEvent {
   duration: number; // hours
 }
 
-const events: ClassEvent[] = [
-  { id: 1, name: "Data Structures", code: "CS 301", room: "ENG 214", instructor: "Dr. Chen", color: "#6366f1", day: 0, startHour: 10, duration: 1.5 },
-  { id: 1, name: "Data Structures", code: "CS 301", room: "ENG 214", instructor: "Dr. Chen", color: "#6366f1", day: 2, startHour: 10, duration: 1.5 },
-  { id: 2, name: "Machine Learning", code: "CS 415", room: "SCI 108", instructor: "Prof. Wright", color: "#8b5cf6", day: 1, startHour: 14, duration: 1.5 },
-  { id: 2, name: "Machine Learning", code: "CS 415", room: "SCI 108", instructor: "Prof. Wright", color: "#8b5cf6", day: 3, startHour: 14, duration: 1.5 },
-  { id: 3, name: "Operating Systems", code: "CS 350", room: "COMP 301", instructor: "Dr. Patel", color: "#06b6d4", day: 0, startHour: 9, duration: 1 },
-  { id: 3, name: "Operating Systems", code: "CS 350", room: "COMP 301", instructor: "Dr. Patel", color: "#06b6d4", day: 2, startHour: 9, duration: 1 },
-  { id: 3, name: "Operating Systems", code: "CS 350", room: "COMP 301", instructor: "Dr. Patel", color: "#06b6d4", day: 4, startHour: 9, duration: 1 },
-  { id: 4, name: "Database Mgmt", code: "CS 380", room: "ENG 102", instructor: "Prof. Torres", color: "#10b981", day: 1, startHour: 10, duration: 1.5 },
-  { id: 4, name: "Database Mgmt", code: "CS 380", room: "ENG 102", instructor: "Prof. Torres", color: "#10b981", day: 3, startHour: 10, duration: 1.5 },
-  { id: 5, name: "Computer Networks", code: "CS 420", room: "NET 205", instructor: "Dr. Zhao", color: "#f59e0b", day: 0, startHour: 13, duration: 1.5 },
-  { id: 5, name: "Computer Networks", code: "CS 420", room: "NET 205", instructor: "Dr. Zhao", color: "#f59e0b", day: 2, startHour: 13, duration: 1.5 },
-];
+const events: ClassEvent[] = [];
 
 const CELL_HEIGHT = 56; // px per hour
 const HEADER_OFFSET = 0;
@@ -162,3 +150,4 @@ export function SchedulePage() {
     </div>
   );
 }
+
