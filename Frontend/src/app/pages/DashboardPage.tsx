@@ -331,6 +331,9 @@ export function DashboardPage() {
                 }) : (
                   <p className="text-xs text-slate-500">No recent activity.</p>
                 )}
+              </div>
+          </div>
+
           {/* Upcoming Deadlines */}
           <div className={`rounded-2xl border shadow-sm p-5 ${card}`}>
             <h3 className={textPrimary} style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>Upcoming Deadlines</h3>
