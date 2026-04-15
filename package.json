@@ -1,0 +1,12 @@
+{
+  "name": "prowadlabor-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"docker-compose up --build\" \"cd Frontend && npm install && npm start\"",
+    "stop": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
