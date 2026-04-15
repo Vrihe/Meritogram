@@ -11,3 +11,4 @@ email-validator
 httpx
 requests
 python-multipart
+google-auth

@@ -8,6 +8,7 @@ from bson.objectid import ObjectId
 from ..core.config import get_settings
 from ..core.database import get_db
 from ..models import UserResponse
+from ..models.user import UserProfile, UserNotifications, UserAcademic, UserSecurity, UserAppSettings
 
 settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -27,16 +28,39 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create JWT access token"""
     to_encode = data.copy()
-    
+
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    
+
     return encoded_jwt
+
+
+def _user_doc_to_response(user: dict) -> UserResponse:
+    """Convert MongoDB user document to UserResponse."""
+    profile = user.get("profile", {})
+    if not profile:
+        profile = {
+            "full_name": user.get("full_name", ""),
+            "student_id": user.get("student_id", ""),
+            "major": user.get("major", ""),
+            "photo_url": user.get("photo_url", ""),
+        }
+
+    return UserResponse(
+        id=str(user["_id"]),
+        email=user["email"],
+        profile=UserProfile(**profile),
+        notifications=UserNotifications(**user.get("notifications", {})),
+        academic=UserAcademic(**user.get("academic", {})),
+        security=UserSecurity(**user.get("security", {})),
+        app_settings=UserAppSettings(**user.get("app_settings", {})),
+        created_at=user["created_at"],
+    )
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)) -> UserResponse:
@@ -46,7 +70,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
@@ -54,18 +78,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
             raise credential_exception
     except JWTError:
         raise credential_exception
-    
+
     try:
         user = db["users"].find_one({"_id": ObjectId(user_id)})
-    except:
+    except Exception:
         user = None
-    
+
     if user is None:
         raise credential_exception
-    
-    return UserResponse(
-        id=str(user["_id"]),
-        email=user["email"],
-        full_name=user["full_name"],
-        created_at=user["created_at"]
-    )
+
+    return _user_doc_to_response(user)
