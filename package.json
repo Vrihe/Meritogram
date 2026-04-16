@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-  "dev": "concurrently \"docker-compose up --build\" \"cd Frontend && npm start\"",
-  "start": "npm run dev",
-  "stop": "docker-compose down"
-},
+    "init-env": "shx cp -n Backend/.env.example Backend/.env",
+    "dev": "npm run init-env && concurrently \"docker-compose up --build\" \"cd Frontend && npm start\"",
+    "start": "npm run dev",
+    "stop": "docker-compose down"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "shx": "^0.4.0"
   }
 }
