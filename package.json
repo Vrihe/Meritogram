@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"docker-compose up --build\" \"cd Frontend && npm install && npm start\"",
-    "stop": "docker-compose down"
-  },
+  "dev": "concurrently \"docker-compose up --build\" \"cd Frontend && npm start\"",
+  "start": "npm run dev",
+  "stop": "docker-compose down"
+},
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
