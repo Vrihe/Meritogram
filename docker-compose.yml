@@ -6,9 +6,9 @@ services:
     container_name: backend_prowad
     ports:
       - "8000:8000"
-    dns:              
-      - 8.8.8.8       
-      - 8.8.4.4        
+    # dns:              
+    #   - 8.8.8.8       
+    #   - 8.8.4.4        
     env_file:
       - ./Backend/.env
     volumes:
