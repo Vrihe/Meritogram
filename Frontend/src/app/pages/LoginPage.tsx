@@ -34,14 +34,16 @@ declare global {
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export function LoginPage() {
+  const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, register } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,15 +103,23 @@ export function LoginPage() {
     document.head.appendChild(script);
   }, [loginWithGoogle, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
+      if (isSignUpMode) {
+        await register({
+          email,
+          password,
+          full_name: fullName,
+        });
+      } else {
+        await login(email, password);
+      }
       navigate("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : isSignUpMode ? "Sign up failed" : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -123,18 +133,35 @@ export function LoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 mb-4">
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-slate-900 dark:text-white mb-2">Welcome Back</h1>
+          <h1 className="text-slate-900 dark:text-white mb-2">
+            {isSignUpMode ? "Create Account" : "Welcome Back"}
+          </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm">
-            Sign in to access your student portal
+            {isSignUpMode ? "Sign up to start using your student portal" : "Sign in to access your student portal"}
           </p>
         </div>
 
         {/* Login Form */}
         <div className="bg-card border border-border p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
                 {error}
+              </div>
+            )}
+            {isSignUpMode && (
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="John Doe"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-border text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-indigo-500"
+                  required={isSignUpMode}
+                />
               </div>
             )}
             {/* Email Field */}
@@ -180,19 +207,20 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 border-slate-300 dark:border-slate-600"
-                />
-                <span className="text-slate-600 dark:text-slate-400">Remember me</span>
-              </label>
-              <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-                Forgot password?
-              </a>
-            </div>
+            {!isSignUpMode && (
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 border-slate-300 dark:border-slate-600"
+                  />
+                  <span className="text-slate-600 dark:text-slate-400">Remember me</span>
+                </label>
+                <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                  Forgot password?
+                </a>
+              </div>
+            )}
 
             {/* Login Button */}
             <button
@@ -200,7 +228,7 @@ export function LoginPage() {
               disabled={loading}
               className="w-full py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-50"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? (isSignUpMode ? "Creating account..." : "Signing in...") : (isSignUpMode ? "Sign Up" : "Sign In")}
             </button>
           </form>
 
@@ -232,10 +260,17 @@ export function LoginPage() {
 
           {/* Sign Up Link */}
           <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-6">
-            Don't have an account?{" "}
-            <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-              Sign up
-            </a>
+            {isSignUpMode ? "Already have an account?" : "Don't have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUpMode((prev) => !prev);
+                setError("");
+              }}
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              {isSignUpMode ? "Sign in" : "Sign up"}
+            </button>
           </p>
         </div>
 
