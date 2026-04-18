@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BookOpen, Users, Clock, Award, ChevronRight, Plus, Search, Filter } from "lucide-react";
 import { GradeSparkline } from "../components/GradeSparkline";
+import { EnrollCourseModal } from "../components/EnrollCourseModal";
 import { useTheme } from "../context/ThemeContext";
 import { courseService, type CourseData } from "../services/course.service";
 import { gradeService } from "../services/grade.service";
@@ -18,6 +19,8 @@ export function CoursesPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<CourseFull | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEnrollOpen, setIsEnrollOpen] = useState(false);
+  const [filterTag, setFilterTag] = useState<string | null>(null);
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -51,10 +54,14 @@ export function CoursesPage() {
   }, []);
 
   const filtered = courses.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.code.toLowerCase().includes(search.toLowerCase()) ||
-      c.instructor.toLowerCase().includes(search.toLowerCase())
+    (c) => {
+      const matchesSearch =
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.code.toLowerCase().includes(search.toLowerCase()) ||
+        c.instructor.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter = !filterTag || c.tags.includes(filterTag);
+      return matchesSearch && matchesFilter;
+    }
   );
 
   const card = "bg-card border-border";
@@ -77,7 +84,9 @@ export function CoursesPage() {
           <h2 className={textPrimary} style={{ fontWeight: 700, fontSize: "1.2rem" }}>My Courses</h2>
           <p className={`${textMuted} text-sm`}>Spring 2026 · {courses.length} enrolled courses · 16 credits</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm transition shadow-lg shadow-indigo-900/20">
+        <button 
+          onClick={() => setIsEnrollOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm transition shadow-lg shadow-indigo-900/20">
           <Plus className="w-4 h-4" />
           <span style={{ fontWeight: 600 }}>Enroll in Course</span>
         </button>
@@ -94,9 +103,11 @@ export function CoursesPage() {
             className={`bg-transparent border-none outline-none text-sm w-full ${inputText}`}
           />
         </div>
-        <button className={`flex items-center gap-2 px-4 py-2 border text-sm hover:opacity-80 transition ${isDark ? "bg-slate-800 border-slate-700 text-slate-300" : "bg-white border-slate-200 text-slate-600"}`}>
+        <button 
+          onClick={() => setFilterTag(filterTag ? null : courses[0]?.tags[0])}
+          className={`flex items-center gap-2 px-4 py-2 border text-sm hover:opacity-80 transition ${isDark ? "bg-slate-800 border-slate-700 text-slate-300" : "bg-white border-slate-200 text-slate-600"} ${filterTag ? "ring-2 ring-indigo-500" : ""}`}>
           <Filter className="w-4 h-4" />
-          <span style={{ fontWeight: 500 }}>Filter</span>
+          <span style={{ fontWeight: 500 }}>Filter {filterTag ? `(${filterTag})` : ""}</span>
         </button>
       </div>
 
@@ -213,6 +224,25 @@ export function CoursesPage() {
           )}
         </div>
       </div>
+
+      <EnrollCourseModal
+        isOpen={isEnrollOpen}
+        onClose={() => setIsEnrollOpen(false)}
+        onEnroll={async (courseId) => {
+          await courseService.enroll(courseId);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const updated = await courseService.getAll();
+          setCourses(updated.map((c) => ({
+            ...c,
+            students: 30,
+            attended: c.attendance?.length || 0,
+            total: c.total_sessions,
+            currentGrade: c.grades && c.grades.length > 0 ? c.grades[c.grades.length - 1].score : 0,
+            gradeHistory: c.grades ? c.grades.map((g) => g.score) : [],
+          })));
+        }}
+        enrolledCourseIds={courses.map((c) => c.id)}
+      />
     </div>
   );
 }

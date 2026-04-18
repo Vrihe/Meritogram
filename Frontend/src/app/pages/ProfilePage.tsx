@@ -4,9 +4,12 @@ import { useAuth } from "../context/AuthContext";
 import { courseService } from "../services/course.service";
 import { gradeService } from "../services/grade.service";
 import { attendanceService } from "../services/attendance.service";
+import { EditProfileModal } from "../components/EditProfileModal";
+import type { User } from "../services/auth.service";
 
 export function ProfilePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [stats, setStats] = useState({ gpa: 0, credits: 0, attendanceRate: 0, courses: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +91,9 @@ export function ProfilePage() {
               </div>
             </div>
           </div>
-          <button className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 transition">
+          <button 
+            onClick={() => setIsEditOpen(true)}
+            className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 transition">
             Edit Profile
           </button>
         </div>
@@ -184,6 +189,16 @@ export function ProfilePage() {
               </div>
             </div>
           </div>
+
+      <EditProfileModal
+        isOpen={isEditOpen}
+        user={user as User}
+        onClose={() => setIsEditOpen(false)}
+        onSuccess={(updated) => {
+          setUser(updated);
+          setIsEditOpen(false);
+        }}
+      />
         </div>
       </div>
     </div>

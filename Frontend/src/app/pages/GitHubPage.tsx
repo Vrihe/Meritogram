@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Github, GitBranch, Star, GitPullRequest, Calendar, ExternalLink } from "lucide-react";
+import { Github, GitBranch, Star, GitPullRequest, Calendar, ExternalLink, AlertCircle } from "lucide-react";
 
 // Generate mock contribution data for the past 365 days
 const contributions: any[] = [];
@@ -19,8 +19,10 @@ const recentActivity = [
 ];
 
 export function GitHubPage() {
-  const [isConnected, setIsConnected] = useState(true);
-  const [username] = useState("alexjohnson");
+  const [isConnected, setIsConnected] = useState(false);
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const totalContributions = contributions.reduce((sum, day) => sum + day.count, 0);
 
@@ -30,6 +32,38 @@ export function GitHubPage() {
     if (level === 2) return "bg-neutral-500 dark:bg-neutral-600";
     if (level === 3) return "bg-neutral-600 dark:bg-neutral-500";
     return "bg-neutral-700 dark:bg-neutral-400";
+  };
+
+  const handleConnect = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // GitHub OAuth flow
+      const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || "your-client-id";
+      const redirectUri = `${window.location.origin}/github-callback`;
+      const scope = "user:email repo";
+
+      const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+      window.location.href = authUrl;
+    } catch (err) {
+      setError("Failed to connect GitHub");
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await fetch("/api/github/disconnect", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setIsConnected(false);
+      setUsername("");
+    } catch (err) {
+      setError("Failed to disconnect GitHub");
+    }
   };
 
   // Group contributions by week
@@ -52,12 +86,20 @@ export function GitHubPage() {
           </div>
         </div>
         <button
-          onClick={() => setIsConnected(!isConnected)}
-          className="px-4 py-2 bg-neutral-900 dark:bg-neutral-700 text-white hover:bg-neutral-800 dark:hover:bg-neutral-600 transition"
+          onClick={isConnected ? handleDisconnect : handleConnect}
+          disabled={loading}
+          className="px-4 py-2 bg-neutral-900 dark:bg-neutral-700 text-white hover:bg-neutral-800 dark:hover:bg-neutral-600 disabled:opacity-50 transition"
         >
-          {isConnected ? "Disconnect" : "Connect GitHub"}
+          {loading ? "Connecting..." : isConnected ? "Disconnect" : "Connect GitHub"}
         </button>
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-gap-2">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+        </div>
+      )}
 
       {isConnected ? (
         <>
@@ -189,10 +231,11 @@ export function GitHubPage() {
             Link your GitHub account to view your contribution activity, repositories, and more.
           </p>
           <button
-            onClick={() => setIsConnected(true)}
-            className="px-6 py-2.5 bg-neutral-900 dark:bg-neutral-700 text-white hover:bg-neutral-800 dark:hover:bg-neutral-600 transition"
+            onClick={handleConnect}
+            disabled={loading}
+            className="px-6 py-2.5 bg-neutral-900 dark:bg-neutral-700 text-white hover:bg-neutral-800 dark:hover:bg-neutral-600 disabled:opacity-50 transition"
           >
-            Connect GitHub
+            {loading ? "Connecting..." : "Connect GitHub"}
           </button>
         </div>
       )}

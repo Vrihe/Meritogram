@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { User, Bell, Shield, Palette, GraduationCap, Save, Check, Sun, Moon, Monitor } from "lucide-react";
+import { User, Bell, Shield, Palette, GraduationCap, Save, Check, Sun, Moon, Monitor, AlertCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { ChangePasswordModal } from "../components/ChangePasswordModal";
+import { userService } from "../services/user.service";
 import type { Theme } from "../context/ThemeContext";
 
 export function SettingsPage() {
   const [saved, setSaved] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [is2FAOpen, setIs2FAOpen] = useState(false);
+  const [isSessionsOpen, setIsSessionsOpen] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const { theme, setTheme, isDark } = useTheme();
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: "Alex Johnson",
     email: "alex.johnson@university.edu",
@@ -23,6 +31,55 @@ export function SettingsPage() {
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Simulate file upload
+      const reader = new FileReader();
+      reader.onload = async () => {
+        await userService.updateProfile({
+          profile: {
+            photo_url: reader.result as string,
+          },
+        });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+        setFileInputKey((k) => k + 1);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Failed to upload photo:", err);
+    }
+  };
+
+  const handleChangePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      // Call API to change password
+      await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });input
+                key={fileInputKey}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                id="photo-upload"
+              />
+              <label htmlFor="photo-upload" className="text-indigo-500 text-xs mt-1 hover:text-indigo-400 transition cursor-pointer" style={{ fontWeight: 500 }}>
+                Upload new photo
+              </label
+    } catch (err) {
+      throw new Error("Failed to change password");
+    }
   };
 
   const toggle = (key: keyof typeof form) => {
@@ -151,11 +208,11 @@ export function SettingsPage() {
                     className={`bg-white rounded-full shadow absolute top-0.5 transition-transform`}
                     style={{ width: 18, height: 18, transform: form[key as keyof typeof form] ? "translateX(20px)" : "translateX(2px)" }}
                   />
-                </button>
-              </div>
-            ))}
-          </div>
-        </SettingsSection>
+                </button>onClick: () => setIsChangePasswordOpen(true), right: "Update →", color: "text-indigo-500" },
+              { label: "Two-Factor Authentication", onClick: () => setIs2FAOpen(true), right: "Enabled", color: "text-emerald-500" },
+              { label: "Active Sessions", onClick: () => setIsSessionsOpen(true), right: "Manage →", color: "text-indigo-500" },
+            ].map(({ label, onClick, right, color }) => (
+              <button key={label} onClick={onClick
 
         {/* Security */}
         <SettingsSection title="Security" icon={Shield} iconBg={isDark ? "bg-red-900/40" : "bg-red-100"} iconColor="text-red-500" isDark={isDark}>
@@ -184,6 +241,77 @@ export function SettingsPage() {
           </button>
         </div>
       </div>
+
+      {/* Modals */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        onSubmit={handleChangePassword}
+      />
+
+      {/* 2FA Modal */}
+      {is2FAOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full mx-4 shadow-lg p-6">
+            <h3 className={`${textPrimary} font-semibold mb-4`}>Two-Factor Authentication</h3>
+            <div className={`p-3 ${isDark ? "bg-green-900/20 border-green-800" : "bg-green-50 border-green-200"} border rounded-lg flex items-gap-2 mb-4`}>
+              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-green-700 dark:text-green-200">Two-Factor Authentication is enabled</p>
+            </div>
+            <p className={`${textMuted} text-sm mb-4`}>Your account is protected with 2FA. You can manage your authentication methods in security settings.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIs2FAOpen(false)}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${isDark ? "bg-slate-700 hover:bg-slate-600 text-slate-300" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}
+              >
+                Close
+              </button>
+              <button className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+                Manage Methods
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Sessions Modal */}
+      {isSessionsOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full mx-4 shadow-lg p-6">
+            <h3 className={`${textPrimary} font-semibold mb-4`}>Active Sessions</h3>
+            <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
+              {[
+                { device: "Chrome on Windows", location: "San Francisco, CA", time: "Current session", isCurrent: true },
+                { device: "Safari on iPhone", location: "San Francisco, CA", time: "2 hours ago", isCurrent: false },
+                { device: "Firefox on Linux", location: "New York, NY", time: "1 day ago", isCurrent: false },
+              ].map((session, i) => (
+                <div key={i} className={`p-3 rounded-lg ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className={`${textPrimary} text-sm font-medium`}>{session.device}</p>
+                      <p className={`${textMuted} text-xs`}>{session.location} • {session.time}</p>
+                    </div>
+                    {!session.isCurrent && (
+                      <button className="text-xs text-red-500 hover:text-red-600 font-medium">Logout</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsSessionsOpen(false)}
+                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${isDark ? "bg-slate-700 hover:bg-slate-600 text-slate-300" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}
+              >
+                Close
+              </button>
+              <button className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition">
+                Logout All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

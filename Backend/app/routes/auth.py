@@ -1,14 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import timedelta
+from pydantic import BaseModel
 from ..models import UserCreate, UserLogin, GoogleAuthRequest, Token, UserResponse
 from ..services import (
     create_user, authenticate_user, authenticate_google_user, create_access_token, get_current_user
 )
+from ..services.auth import verify_password, hash_password
 from ..core.config import get_settings
 from ..core.database import get_db
 
 router = APIRouter(tags=["auth"])
 settings = get_settings()
+
+
+class ChangePasswordRequest(BaseModel):
+    currentPassword: str
+    newPassword: str
 
 
 @router.post("/register", response_model=Token)
@@ -69,3 +76,32 @@ async def google_login(payload: GoogleAuthRequest, db=Depends(get_db)):
 async def get_me(current_user: UserResponse = Depends(get_current_user)):
     """Get current user"""
     return current_user
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: UserResponse = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    """Change user password"""
+    try:
+        from ..models.user import User
+        
+        user = await db.get(User, current_user.id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Verify current password
+        if not verify_password(request.currentPassword, user.hashed_password):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        # Update password
+        user.hashed_password = hash_password(request.newPassword)
+        await db.commit()
+        
+        return {"message": "Password changed successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
