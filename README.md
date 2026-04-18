@@ -4,7 +4,7 @@ gdx177303@student.gdansk.merito.pl - 177303 - Zhdanov Oleksandr - 87148 (Nr. alb
 
 gdx175843@student.gdansk.merito.pl - 175843 - Kyrylo Bankovskyi - 84099 (Nr. albumu)
 
-gdx175843@student.gdansk.merito.pl - 175843 - Ivan Iablochkin - 84099 (Nr. albumu)
+gdx@student.gdansk.merito.pl -  - Ivan Iablochkin -  (Nr. albumu)
 
 
 https://www.figma.com/make/nOIcuuSk8NjKoO4CGJEMku/Student-Learning-Dashboard?t=W9AWVDHkprOBNJUl-0&preview-route=%2Fsettings
