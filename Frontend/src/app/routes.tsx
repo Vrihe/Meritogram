@@ -9,6 +9,7 @@ import { GradesPage } from "./pages/GradesPage";
 import { GitHubPage } from "./pages/GitHubPage";
 import { GroupsPage } from "./pages/GroupsPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { AdminPage } from "./pages/AdminPage";
 import { LoginPage } from "./pages/LoginPage";
 
 export const router = createHashRouter([
@@ -24,6 +25,7 @@ export const router = createHashRouter([
       { path: "github", Component: GitHubPage },
       { path: "groups", Component: GroupsPage },
       { path: "profile", Component: ProfilePage },
+      { path: "admin", Component: AdminPage },
       { path: "ai-tools", element: <Navigate to="/code-review" replace /> },
       { path: "schedule", element: <Navigate to="/" replace /> },
       { path: "settings", element: <Navigate to="/profile" replace /> },

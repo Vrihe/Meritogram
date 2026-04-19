@@ -6,11 +6,12 @@ import type { User } from "../services/auth.service";
 interface EditProfileModalProps {
   isOpen: boolean;
   user: User | null;
+  userRole?: string;
   onClose: () => void;
   onSuccess: (user: User) => void;
 }
 
-export function EditProfileModal({ isOpen, user, onClose, onSuccess }: EditProfileModalProps) {
+export function EditProfileModal({ isOpen, user, userRole = "student", onClose, onSuccess }: EditProfileModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -20,6 +21,8 @@ export function EditProfileModal({ isOpen, user, onClose, onSuccess }: EditProfi
     year: user?.academic?.year || "1st Year",
   });
 
+  const isStudent = userRole === "student";
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,16 +31,23 @@ export function EditProfileModal({ isOpen, user, onClose, onSuccess }: EditProfi
     setLoading(true);
 
     try {
-      const updated = await userService.updateProfile({
+      // Students cannot change year
+      const updateData: any = {
         profile: {
           full_name: form.full_name,
           student_id: form.student_id,
           major: form.major,
         },
-        academic: {
+      };
+
+      // Only include year if not a student
+      if (!isStudent) {
+        updateData.academic = {
           year: form.year,
-        },
-      });
+        };
+      }
+
+      const updated = await userService.updateProfile(updateData);
       onSuccess(updated);
       onClose();
     } catch (err) {
@@ -108,18 +118,26 @@ export function EditProfileModal({ isOpen, user, onClose, onSuccess }: EditProfi
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Year
+              Year {isStudent && <span className="text-red-500">(Read-only for students)</span>}
             </label>
             <select
               value={form.year}
-              onChange={(e) => setForm((f) => ({ ...f, year: e.target.value }))}
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+              onChange={(e) => !isStudent && setForm((f) => ({ ...f, year: e.target.value }))}
+              disabled={isStudent}
+              className={`w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none ${
+                isStudent ? "opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-900" : ""
+              }`}
             >
               <option value="1st Year">1st Year</option>
               <option value="2nd Year">2nd Year</option>
               <option value="3rd Year">3rd Year</option>
               <option value="4th Year">4th Year</option>
             </select>
+            {isStudent && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                Students cannot change their year. Contact your professor or administrator for assistance.
+              </p>
+            )}
           </div>
         </form>
 

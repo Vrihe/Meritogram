@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from ..core.config import get_settings
 from ..core.database import get_db
 from ..models import UserResponse
-from ..models.user import UserProfile, UserNotifications, UserAcademic, UserSecurity, UserAppSettings
+from ..models.user import UserProfile, UserNotifications, UserAcademic, UserSecurity, UserAppSettings, UserRole
 
 settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -67,6 +67,7 @@ def _user_doc_to_response(user: dict) -> UserResponse:
     return UserResponse(
         id=str(user["_id"]),
         email=user["email"],
+        role=UserRole(user.get("role", "student")),
         profile=UserProfile(**profile),
         notifications=UserNotifications(**user.get("notifications", {})),
         academic=UserAcademic(**user.get("academic", {})),

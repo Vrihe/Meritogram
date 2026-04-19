@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, GraduationCap, Award, BookOpen, Clock } from "lucide-react";
+import { Mail, GraduationCap, Award, BookOpen, Clock, AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { courseService } from "../services/course.service";
 import { gradeService } from "../services/grade.service";
@@ -12,6 +12,10 @@ export function ProfilePage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [stats, setStats] = useState({ gpa: 0, credits: 0, attendanceRate: 0, courses: 0 });
   const [loading, setLoading] = useState(true);
+
+  const isStudent = user?.role === "student";
+  const isProfessor = user?.role === "professor";
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     async function load() {
@@ -75,6 +79,31 @@ export function ProfilePage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      {/* Student Restrictions Warning */}
+      {isStudent && (
+        <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-300 dark:border-yellow-700 rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">Student Profile Restrictions</p>
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              As a student, you cannot change your academic year. To request changes, contact your professor or administrator.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Professor Info */}
+      {isProfessor && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-300 dark:border-blue-700 rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">Professor Panel</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              You can create profile change requests for students. These requests will be reviewed by administrators.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Profile Header */}
       <div className="bg-card border border-border p-6 mb-6">
         <div className="flex items-start gap-6">
@@ -93,8 +122,14 @@ export function ProfilePage() {
           </div>
           <button 
             onClick={() => setIsEditOpen(true)}
-            className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 transition">
-            Edit Profile
+            disabled={isStudent}
+            title={isStudent ? "Students cannot edit profile" : "Edit your profile"}
+            className={`px-4 py-2 transition ${
+              isStudent 
+                ? "bg-gray-400 text-white cursor-not-allowed opacity-50" 
+                : "bg-indigo-600 text-white hover:bg-indigo-700"
+            }`}>
+            {isStudent ? "Cannot Edit (Student)" : "Edit Profile"}
           </button>
         </div>
       </div>
@@ -193,6 +228,7 @@ export function ProfilePage() {
       <EditProfileModal
         isOpen={isEditOpen}
         user={user as User}
+        userRole={user?.role || "student"}
         onClose={() => setIsEditOpen(false)}
         onSuccess={(updated) => {
           setUser(updated);

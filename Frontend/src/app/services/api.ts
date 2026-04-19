@@ -8,8 +8,12 @@ class ApiError extends Error {
   }
 }
 
-async function apiFetch<T>(endpoint: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
-  const { method = 'GET', body } = options;
+async function apiFetch<T>(endpoint: string, options: { 
+  method?: string; 
+  body?: unknown;
+  params?: Record<string, any>;
+} = {}): Promise<T> {
+  const { method = 'GET', body, params } = options;
   const headers: Record<string, string> = {};
 
   const token = localStorage.getItem('token');
@@ -21,7 +25,21 @@ async function apiFetch<T>(endpoint: string, options: { method?: string; body?: 
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+  // Build URL with query parameters
+  let url = `${API_BASE}${endpoint}`;
+  if (params) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== null && value !== undefined) {
+        query.append(key, String(value));
+      }
+    }
+    if (query.toString()) {
+      url += `?${query.toString()}`;
+    }
+  }
+
+  const res = await fetch(url, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -36,10 +54,14 @@ async function apiFetch<T>(endpoint: string, options: { method?: string; body?: 
 }
 
 export const api = {
-  get: <T>(url: string) => apiFetch<T>(url),
-  post: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'POST', body }),
-  put: <T>(url: string, body: unknown) => apiFetch<T>(url, { method: 'PUT', body }),
-  delete: <T>(url: string) => apiFetch<T>(url, { method: 'DELETE' }),
+  get: <T>(url: string, options?: { params?: Record<string, any> }) => 
+    apiFetch<T>(url, { ...options, method: 'GET' }),
+  post: <T>(url: string, body?: unknown, options?: { params?: Record<string, any> }) => 
+    apiFetch<T>(url, { method: 'POST', body, ...options }),
+  put: <T>(url: string, body?: unknown, options?: { params?: Record<string, any> }) => 
+    apiFetch<T>(url, { method: 'PUT', body, ...options }),
+  delete: <T>(url: string, options?: { params?: Record<string, any> }) => 
+    apiFetch<T>(url, { method: 'DELETE', ...options }),
 };
 
 export { ApiError };

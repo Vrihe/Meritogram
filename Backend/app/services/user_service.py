@@ -3,7 +3,7 @@ from datetime import datetime
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from ..models.user import (
-    UserCreate, UserResponse,
+    UserCreate, UserResponse, UserRole,
     UserNotifications, UserAcademic, UserSecurity, UserAppSettings,
 )
 from .auth import hash_password, verify_password, _user_doc_to_response
@@ -23,6 +23,7 @@ async def create_user(user: UserCreate, db) -> UserResponse:
         "password_hash": hash_password(user.password),
         "auth_provider": "local",
         "google_sub": None,
+        "role": UserRole.STUDENT.value,
         "profile": {
             "full_name": user.full_name,
             "student_id": user.student_id,
@@ -161,4 +162,42 @@ async def update_user_profile(user_id: str, updates: dict, db) -> UserResponse:
     )
 
     user = db["users"].find_one({"_id": ObjectId(user_id)})
+    return _user_doc_to_response(user)
+
+
+async def get_students(db, skip: int = 0, limit: int = 100) -> list:
+    """Get all students in the system"""
+    from ..models.user import UserRole
+    
+    students = list(db["users"].find({"role": UserRole.STUDENT.value}).skip(skip).limit(limit))
+    return [_user_doc_to_response(student) for student in students]
+
+
+async def update_student_profile(student_id: str, updates: dict, db) -> UserResponse:
+    """Update student profile (only by professor/admin)"""
+    set_fields = {}
+    
+    # Handle nested fields like profile and academic
+    for section_key, section_data in updates.items():
+        if section_data is not None and section_key in ("profile", "academic"):
+            if isinstance(section_data, dict):
+                for field_key, value in section_data.items():
+                    set_fields[f"{section_key}.{field_key}"] = value
+            else:
+                set_fields[section_key] = section_data
+
+    if not set_fields:
+        raise ValueError("No valid fields to update")
+
+    set_fields["updated_at"] = datetime.utcnow()
+
+    result = db["users"].update_one(
+        {"_id": ObjectId(student_id)},
+        {"$set": set_fields},
+    )
+
+    if result.matched_count == 0:
+        raise ValueError("Student not found")
+
+    user = db["users"].find_one({"_id": ObjectId(student_id)})
     return _user_doc_to_response(user)

@@ -5,6 +5,7 @@ from app.core import connect_db, close_db
 from app.routes import (
     auth_router, courses_router, code_review_router, github_router,
     profile_router, attendance_router, grades_router,
+    notifications_router, admin_router, professor_router,
 )
 
 
@@ -47,6 +48,9 @@ app.include_router(attendance_router, prefix="/api")
 app.include_router(grades_router, prefix="/api")
 app.include_router(code_review_router, prefix="/api")
 app.include_router(github_router, prefix="/api")
+app.include_router(notifications_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
+app.include_router(professor_router, prefix="/api")
 
 
 @app.get("/", tags=["root"])

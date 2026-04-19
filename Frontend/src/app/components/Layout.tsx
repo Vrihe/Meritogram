@@ -18,9 +18,11 @@ import {
   Github,
   Users,
   Calendar,
+  Shield,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { NotificationPanel } from "./NotificationPanel";
 
 const mainNavItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -33,6 +35,10 @@ const mainNavItems = [
   { to: "/profile", icon: User, label: "Profile" },
 ];
 
+const adminNavItems = [
+  { to: "/admin", icon: Shield, label: "Admin Panel" },
+];
+
 const allRoutes: Record<string, string> = {
   "/": "Dashboard",
   "/courses": "Courses",
@@ -42,11 +48,11 @@ const allRoutes: Record<string, string> = {
   "/github": "GitHub",
   "/groups": "Groups",
   "/profile": "Profile",
+  "/admin": "Admin Panel",
 };
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [notifOpen, setNotifOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
@@ -62,12 +68,6 @@ export function Layout() {
   const userName = user?.profile?.full_name || "User";
   const userInitials = userName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
   const userMajor = user?.profile?.major || "";
-
-  const notifications = [
-    { id: 1, text: "Assignment due: Data Structures — tomorrow", time: "2h ago", unread: true },
-    { id: 2, text: "Grade posted: Algorithms midterm — 92%", time: "5h ago", unread: true },
-    { id: 3, text: "New feedback on your code submission", time: "1d ago", unread: false },
-  ];
 
   return (
     <div
@@ -120,6 +120,33 @@ export function Layout() {
               )}
             </NavLink>
           ))}
+          
+          {/* Admin items - only show for admins */}
+          {user?.role === "admin" && (
+            <>
+              <div className="h-px bg-neutral-700 my-2"></div>
+              {adminNavItems.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 transition-all duration-150 ${
+                      isActive
+                        ? "bg-red-700 text-white"
+                        : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                    }`
+                  }
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {sidebarOpen && (
+                    <span className="text-sm" style={{ fontWeight: 500 }}>
+                      {label}
+                    </span>
+                  )}
+                </NavLink>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* Theme toggle & Logout */}
@@ -162,7 +189,23 @@ export function Layout() {
                   <p className="text-white text-sm truncate" style={{ fontWeight: 500 }}>
                     {userName}
                   </p>
-                  <p className="text-neutral-400 text-xs truncate">Student{userMajor ? ` · ${userMajor}` : ""}</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-neutral-400 text-xs truncate capitalize">
+                      {user?.role || "student"}
+                    </p>
+                    {userMajor && <p className="text-neutral-400 text-xs">·</p>}
+                    {userMajor && <p className="text-neutral-400 text-xs truncate">{userMajor}</p>}
+                    {user?.role === "admin" && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-red-600 text-white text-xs rounded font-semibold">
+                        ADMIN
+                      </span>
+                    )}
+                    {user?.role === "professor" && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded font-semibold">
+                        PROF
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <ChevronDown className="w-4 h-4 text-neutral-400 flex-shrink-0" />
               </>
@@ -220,66 +263,8 @@ export function Layout() {
               )}
             </button>
 
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                onClick={() => setNotifOpen(!notifOpen)}
-                className="p-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition relative"
-              >
-                <Bell className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-neutral-700 flex items-center justify-center">
-                  <span className="text-white" style={{ fontSize: "0.6rem", fontWeight: 700 }}>
-                    2
-                  </span>
-                </span>
-              </button>
-
-              {notifOpen && (
-                <div className="absolute right-0 top-12 w-80 bg-card shadow-2xl border border-border z-50 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-                    <p
-                      className="text-neutral-900 dark:text-neutral-100 text-sm"
-                      style={{ fontWeight: 600 }}
-                    >
-                      Notifications
-                    </p>
-                    <span
-                      className="text-neutral-600 dark:text-neutral-400 text-xs cursor-pointer"
-                      style={{ fontWeight: 500 }}
-                    >
-                      Mark all read
-                    </span>
-                  </div>
-                  <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-                    {notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className={`px-4 py-3 flex gap-3 ${
-                          n.unread ? "bg-neutral-50 dark:bg-neutral-800/50" : ""
-                        }`}
-                      >
-                        <div
-                          className={`w-2 h-2 mt-1.5 flex-shrink-0 ${
-                            n.unread ? "bg-neutral-700" : "bg-neutral-300 dark:bg-neutral-600"
-                          }`}
-                        />
-                        <div className="flex-1">
-                          <p
-                            className="text-neutral-700 dark:text-neutral-300 text-xs"
-                            style={{ fontWeight: n.unread ? 500 : 400 }}
-                          >
-                            {n.text}
-                          </p>
-                          <p className="text-neutral-400 dark:text-neutral-500 text-xs mt-0.5">
-                            {n.time}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Notifications - Using new NotificationPanel component */}
+            <NotificationPanel />
 
             {/* Avatar */}
             <div className="w-9 h-9 bg-neutral-600 flex items-center justify-center cursor-pointer">
@@ -295,11 +280,6 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
-
-      {/* Notif overlay */}
-      {notifOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-      )}
     </div>
   );
 }
