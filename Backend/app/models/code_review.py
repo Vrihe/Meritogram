@@ -27,3 +27,23 @@ class CodeReviewResponse(BaseModel):
     
     class Config:
         populate_by_name = True
+
+
+# --- Chat models ---
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    code: str
+    language: str = "python"
+    selection: Optional[str] = None   # highlighted code fragment (if any)
+    messages: List[ChatMessage] = []  # conversation history
+    message: str                      # new user message
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    role: str = "assistant"
