@@ -2,6 +2,9 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
 const isDev = !app.isPackaged;
+const devServerArg = process.argv.find((arg) => arg.startsWith('--url='));
+const devServerUrl = devServerArg ? devServerArg.slice('--url='.length) : 'http://localhost:5173';
+app.setPath('userData', path.join(app.getPath('temp'), 'student-learning-dashboard'));
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -17,7 +20,7 @@ function createWindow() {
   });
 
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL(devServerUrl);
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));

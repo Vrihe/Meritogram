@@ -1,16 +1,45 @@
-version: '3.8'
-
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: learning_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+
   backend:
     build: ./Backend
-    container_name: backend_prowad
+    container_name: learning_backend
+    depends_on:
+      - ollama
     ports:
       - "8000:8000"
-    # dns:              
-    #   - 8.8.8.8       
-    #   - 8.8.4.4        
     env_file:
       - ./Backend/.env
     volumes:
       - ./Backend:/app
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=qwen2.5-coder:3b
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: learning_frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Frontend:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://localhost:8000/api
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+
+volumes:
+  ollama:

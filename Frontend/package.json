@@ -8,7 +8,7 @@
     "start": "npm run electron:dev",
     "dev": "vite",
     "build": "vite build",
-    "electron:dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:dev": "concurrently -k \"vite --port 5174 --strictPort\" \"wait-on http://localhost:5174 && electron . --url=http://localhost:5174\"",
     "electron:preview": "vite build && electron .",
     "electron:build": "vite build && electron-builder --config electron-builder.json5"
   },

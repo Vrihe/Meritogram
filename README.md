@@ -1,60 +1,118 @@
-#Project for Programowanie aplikacij dektopowych
+# Student Learning Dashboard
 
-gdx177303@student.gdansk.merito.pl - 177303 - Zhdanov Oleksandr - 87148 (Nr. albumu)
+Desktop + web dashboard with FastAPI backend, React/Electron frontend, MongoDB, and Ollama-based code review.
 
-gdx175843@student.gdansk.merito.pl - 175843 - Kyrylo Bankovskyi - 84099 (Nr. albumu)
+## Requirements
 
-gdx177440@student.gdansk.merito.pl - 177440  - Ivan Iablochkin - 85488 (Nr. albumu)
+- Docker Desktop (Compose v2 enabled)
+- Node.js 18+
+- npm 9+
 
+## Quick Start (recommended)
 
-https://www.figma.com/make/nOIcuuSk8NjKoO4CGJEMku/Student-Learning-Dashboard?t=W9AWVDHkprOBNJUl-0&preview-route=%2Fsettings
+From the project root:
 
-The Prompt for make Ai
-Project Title: AI-Powered Student Learning & Code Review Dashboard
+```powershell
+cd "c:\Users\Смерть в нищите\Desktop\da v2\Learning"
+npm install
+npm run dev:desktop:ai
+```
 
-System Instructions:
-Create a high-fidelity, modern SaaS dashboard for a student learning management system. Use a clean, professional aesthetic with a soft color palette (e.g., Indigo and Slate). The interface should be intuitive and split into three primary functional areas:
+What this does:
 
-1. Academic Overview & Stats:
+1. Creates `Backend/.env` from `Backend/.env.example` if missing.
+2. Pulls Ollama model `qwen2.5-coder:3b` (faster) into Docker volume.
+3. Starts `ollama` + `backend` in Docker and opens Electron desktop app locally.
 
-A prominent header displaying the student's Average GPA (Grade Point Average) using a circular progress visualization.
+Open:
 
-A "Quick Stats" row showing total classes attended, pending assignments, and overall progress.
+- Desktop app: opens automatically
+- Web frontend (if running docker web mode): http://localhost:5173
+- Backend API: http://localhost:8000
+- Swagger: http://localhost:8000/docs
 
-2. Interactive Attendance & Grade Logger:
+## First Run Notes
 
-A table or card-based list of courses.
+- The first launch may take several minutes (image build + model pull).
+- Subsequent launches are faster because Docker cache and Ollama volume are reused.
 
-Each course entry must have an "Add Entry" button that opens a form to log attendance (date/time) and input a grade for that specific session.
+## Daily Run Commands
 
-Include a visual indicator (like a sparkline) showing the grade trend for each subject.
+- Desktop mode with AI (Docker backend + local Electron auto-open):
 
-3. AI Code Review Assistant (Side Panel or Integrated Card):
+```powershell
+npm run dev:desktop:ai
+```
 
-A dedicated section titled "Code Review Assistant."
+- Desktop mode without model pre-pull:
 
-Include a code snippet area where students can paste their work.
+```powershell
+npm run dev:desktop
+```
 
-An AI feedback overlay or sidebar that highlights specific lines of code with "improvement cards."
+- Docker web mode with AI (no Electron window):
 
-The cards should provide specific "How to fix" instructions (e.g., "Refactor this loop for better time complexity" or "Variable naming convention error").
+```powershell
+npm run dev:docker:ai
+```
 
-UI Elements to Include:
+- Docker web mode without pre-pulling model (no Electron window):
 
-Sidebar navigation (Dashboard, Courses, Schedule, Settings).
+```powershell
+npm run dev:docker
+```
 
-Search bar and notification bell.
+- Stop services:
 
-Responsive layout optimized for desktop view.
+```powershell
+npm run stop
+```
 
-Use Inter or Roboto for typography to ensure readability.
+## Ollama Helper Commands
 
-Prompt 2:
+- Start only Ollama service:
 
-"Please update the application code to implement and fix the following features:
+```powershell
+npm run ollama:up
+```
 
-Fix the 'AI tools' tab: It is currently not working and needs to be fully functional.
+- Pull model manually:
 
-Implement a theme switcher: Add a working toggle for switching between visual themes (e.g., light and dark modes).
+```powershell
+npm run ollama:pull
+```
 
-Add a GitHub integration tab: Create a new tab where users can link their GitHub repositories and view their commit history."
+- Pull bigger but slower model (optional):
+
+```powershell
+npm run ollama:pull:7b
+```
+
+- List models in container volume:
+
+```powershell
+npm run ollama:list
+```
+
+## Environment Setup
+
+`Backend/.env.example` already contains defaults for Ollama:
+
+- `OLLAMA_URL=http://localhost:11434` for local (non-Docker) run.
+- In Docker Compose backend uses internal URL `http://ollama:11434`.
+
+Add your own values in `Backend/.env` for:
+
+- `MONGO_URL`
+- `SECRET_KEY`
+- `GOOGLE_CLIENT_ID`
+
+## Troubleshooting
+
+- If Docker is not running, start Docker Desktop first.
+- If ports are busy, free `5173`, `8000`, and `11434`.
+- If AI says model is missing, run:
+
+```powershell
+npm run ollama:pull
+```

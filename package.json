@@ -4,9 +4,19 @@
   "private": true,
   "scripts": {
     "init-env": "shx cp -n Backend/.env.example Backend/.env",
-    "dev": "npm run init-env && concurrently \"docker-compose up --build\" \"cd Frontend && npm start\"",
+    "ollama:up": "docker compose up -d --wait ollama",
+    "ollama:pull": "npm run ollama:up && docker compose exec ollama ollama pull qwen2.5-coder:3b",
+    "ollama:pull:7b": "npm run ollama:up && docker compose exec ollama ollama pull qwen2.5-coder:7b",
+    "ollama:list": "npm run ollama:up && docker compose exec ollama ollama list",
+    "dev": "npm run dev:desktop:ai",
+    "dev:electron": "npm run dev",
+    "dev:desktop:ai": "npm run init-env && npm run ollama:pull && concurrently -k \"docker compose up --build backend\" \"npm --prefix Frontend run electron:dev\"",
+    "dev:desktop": "npm run init-env && concurrently -k \"docker compose up --build backend\" \"npm --prefix Frontend run electron:dev\"",
+    "dev:hot": "npm run init-env && concurrently -k \"docker compose up --build backend\" \"npm --prefix Frontend run start\"",
+    "dev:docker": "npm run init-env && docker compose up --build",
+    "dev:docker:ai": "npm run init-env && npm run ollama:pull && docker compose up --build",
     "start": "npm run dev",
-    "stop": "docker-compose down"
+    "stop": "docker compose down"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
