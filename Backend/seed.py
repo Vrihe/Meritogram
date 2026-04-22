@@ -25,6 +25,7 @@ def seed():
     db["courses"].delete_many({})
     db["attendance"].delete_many({})
     db["grades"].delete_many({})
+    db["deadlines"].delete_many({})
     print("Cleared existing data")
 
     # --- Create demo user ---
@@ -68,7 +69,7 @@ def seed():
             "name": "Data Structures & Algorithms",
             "code": "CS 301",
             "instructor": "Dr. Sarah Chen",
-            "color": "#6366f1",
+            "color": "#422beb",
             "credits": 4,
             "total_sessions": 28,
             "schedule": "Mon / Wed 10:00-11:30",
@@ -80,7 +81,7 @@ def seed():
             "name": "Machine Learning Fundamentals",
             "code": "CS 415",
             "instructor": "Prof. Marcus Wright",
-            "color": "#8b5cf6",
+            "color": "#5037e8",
             "credits": 3,
             "total_sessions": 26,
             "schedule": "Tue / Thu 14:00-15:30",
@@ -92,7 +93,7 @@ def seed():
             "name": "Operating Systems",
             "code": "CS 350",
             "instructor": "Dr. Priya Patel",
-            "color": "#06b6d4",
+            "color": "#5845ff",
             "credits": 3,
             "total_sessions": 25,
             "schedule": "Mon / Wed / Fri 09:00-10:00",
@@ -104,7 +105,7 @@ def seed():
             "name": "Database Management",
             "code": "CS 380",
             "instructor": "Prof. Alan Torres",
-            "color": "#10b981",
+            "color": "#624dfa",
             "credits": 3,
             "total_sessions": 27,
             "schedule": "Tue / Thu 10:00-11:30",
@@ -116,7 +117,7 @@ def seed():
             "name": "Computer Networks",
             "code": "CS 420",
             "instructor": "Dr. Linda Zhao",
-            "color": "#f59e0b",
+            "color": "#7059f8",
             "credits": 3,
             "total_sessions": 24,
             "schedule": "Mon / Wed 13:00-14:30",
@@ -195,6 +196,27 @@ def seed():
             })
             total_grades += 1
     print(f"Created {total_grades} grade records")
+
+    # --- Create deadline records ---
+    deadline_data = [
+        {"code": "CS 301", "task": "Project Proposal", "due_days": 2, "urgent": True, "credits": 15},
+        {"code": "CS 415", "task": "Lab 4 — Neural Nets", "due_days": 4, "urgent": False, "credits": 20},
+        {"code": "CS 420", "task": "Network Simulation Report", "due_days": 5, "urgent": False, "credits": 10},
+        {"code": "CS 350", "task": "Process Scheduling Quiz", "due_days": 7, "urgent": False, "credits": 5},
+    ]
+
+    now = datetime.utcnow()
+    for d in deadline_data:
+        db["deadlines"].insert_one({
+            "user_id": user_id,
+            "course_id": course_ids[d["code"]],
+            "task": d["task"],
+            "due": now + timedelta(days=d["due_days"]),
+            "urgent": d["urgent"],
+            "credits": d["credits"],
+            "created_at": now,
+        })
+    print(f"Created {len(deadline_data)} deadline records")
 
     client.close()
     print("\nSeed complete!")

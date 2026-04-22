@@ -7,6 +7,7 @@ from .code_review import CodeReviewRequest, CodeReviewResponse, CodeIssue
 from .github import GithubRepository, GithubRepoResponse, GithubCommit
 from .attendance import AttendanceCreate, AttendanceUpdate, AttendanceResponse
 from .grade import GradeCreate as GradeItemCreate, GradeUpdate, GradeResponse
+from .deadline import DeadlineCreate, DeadlineUpdate, DeadlineResponse
 
 __all__ = [
     "UserProfile", "UserNotifications", "UserAcademic", "UserSecurity", "UserAppSettings",

@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 import { courseService } from "../services/course.service";
 import { gradeService, GradeRecord } from "../services/grade.service";
 import { attendanceService, AttendanceRecord } from "../services/attendance.service";
+import { getDeadlines, Deadline } from "../services/deadline.service";
 
 interface Course {
   id: string;
@@ -26,6 +27,7 @@ interface Course {
 export function DashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
+  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,10 +37,11 @@ export function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [coursesData, gradesData, attendanceData] = await Promise.all([
+        const [coursesData, gradesData, attendanceData, deadlinesData] = await Promise.all([
           courseService.getAll(),
           gradeService.getAll(),
           attendanceService.getAll(),
+          getDeadlines(),
         ]);
 
         const mapped: Course[] = coursesData.map((c) => {
@@ -58,11 +61,12 @@ export function DashboardPage() {
             total: c.total_sessions,
             currentGrade,
             gradeHistory,
-            pending: 0,
+            pending: deadlinesData.filter(d => d.course_id === c.id).length,
             credits: c.credits,
           };
         });
         setCourses(mapped);
+        setDeadlines(deadlinesData);
 
         const mergedActivities = [
           ...gradesData.map((g) => ({
@@ -180,7 +184,7 @@ export function DashboardPage() {
 
           {/* Quick Stats */}
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard isDark={isDark} icon={BookOpen} iconBg={isDark ? "bg-indigo-900/50" : "bg-indigo-100"} iconColor="text-indigo-500" label="Classes Attended" value={totalAttended} sub={`of ${totalClasses} total`} progress={totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0} progressColor="#6366f1" />
+            <StatCard isDark={isDark} icon={BookOpen} iconBg={isDark ? "bg-indigo-900/50" : "bg-indigo-100"} iconColor="text-indigo-500" label="Classes Attended" value={totalAttended} sub={`of ${totalClasses} total`} progress={totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0} progressColor="#422beb" />
             <StatCard isDark={isDark} icon={Clock} iconBg={isDark ? "bg-amber-900/40" : "bg-amber-100"} iconColor="text-amber-500" label="Pending Assignments" value={totalPending} sub="across all courses" progress={null} alert={totalPending > 3} />
             <StatCard isDark={isDark} icon={Target} iconBg={isDark ? "bg-emerald-900/40" : "bg-emerald-100"} iconColor="text-emerald-500" label="Overall Progress" value={courses.length > 0 ? `${Math.round(avgGrade)}%` : '0%'} sub="average grade" progress={avgGrade} progressColor="#10b981" />
           </div>
@@ -338,25 +342,28 @@ export function DashboardPage() {
           <div className={`rounded-2xl border shadow-sm p-5 ${card}`}>
             <h3 className={textPrimary} style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>Upcoming Deadlines</h3>
             <div className="space-y-3">
-              {[
-                { course: "CS 301", task: "Project Proposal", due: "Feb 21", urgent: true, credits: 15 },
-                { course: "CS 415", task: "Lab 4 — Neural Nets", due: "Feb 23", urgent: false, credits: 20 },
-                { course: "CS 420", task: "Network Simulation Report", due: "Feb 24", urgent: false, credits: 10 },
-                { course: "CS 350", task: "Process Scheduling Quiz", due: "Feb 26", urgent: false, credits: 5 },
-              ].map((item, i) => (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? "bg-slate-700/40" : "bg-slate-50"}`}>
-                  <div className={`w-2 h-8 rounded-full flex-shrink-0 ${item.urgent ? "bg-red-400" : "bg-indigo-300"}`} />
-                  <div className="flex-1">
-                    <p className={`${isDark ? "text-slate-200" : "text-slate-700"} text-xs`} style={{ fontWeight: 600 }}>{item.task}</p>
-                    <p className={`${textSub} text-xs`}>{item.course}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-xs ${item.urgent ? "text-red-500" : isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontWeight: 600 }}>{item.due}</p>
-                    <p className={`${textSub} text-xs`}>{item.credits} pts</p>
-                  </div>
-                  <ChevronRight className={`w-4 h-4 ${textSub}`} />
-                </div>
-              ))}
+              {deadlines.length > 0 ? (
+                deadlines.map((item, i) => {
+                  const dateObj = new Date(item.due);
+                  const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  return (
+                    <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? "bg-slate-700/40" : "bg-slate-50"}`}>
+                      <div className={`w-2 h-8 rounded-full flex-shrink-0 ${item.urgent ? "bg-red-400" : "bg-indigo-300"}`} />
+                      <div className="flex-1">
+                        <p className={`${isDark ? "text-slate-200" : "text-slate-700"} text-xs`} style={{ fontWeight: 600 }}>{item.task}</p>
+                        <p className={`${textSub} text-xs`}>{item.course_code}</p>
+                      </div>
+                      <div className="text-right flex flex-col items-end">
+                        <p className={`text-xs ${item.urgent ? "text-red-500" : isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontWeight: 600 }}>{formattedDate}</p>
+                        {item.credits > 0 && <p className={`${textSub} text-xs`}>{item.credits} pts</p>}
+                      </div>
+                      <ChevronRight className={`w-4 h-4 ${textSub} shrink-0 ml-1`} />
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-slate-500">No upcoming deadlines.</p>
+              )}
             </div>
           </div>
         </div>
@@ -398,7 +405,7 @@ function StatCard({ isDark, icon: Icon, iconBg, iconColor, label, value, sub, pr
       <p className={`${isDark ? "text-slate-500" : "text-slate-400"} text-xs`}>{sub}</p>
       {progress !== null && (
         <div className={`mt-3 h-1.5 rounded-full overflow-hidden ${progressBg}`}>
-          <div className="h-full rounded-full" style={{ width: `${Math.min(progress, 100)}%`, background: progressColor || "#6366f1" }} />
+          <div className="h-full rounded-full" style={{ width: `${Math.min(progress, 100)}%`, background: progressColor || "#422beb" }} />
         </div>
       )}
     </div>

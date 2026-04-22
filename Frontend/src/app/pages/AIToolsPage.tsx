@@ -43,14 +43,14 @@ function GradePredictorTool() {
       : currentWeighted.toFixed(1);
 
   const letterGrade = (g: number) => {
-    if (g >= 93) return { l: "A", c: "#10b981" };
-    if (g >= 90) return { l: "A-", c: "#10b981" };
-    if (g >= 87) return { l: "B+", c: "#6366f1" };
-    if (g >= 83) return { l: "B", c: "#6366f1" };
-    if (g >= 80) return { l: "B-", c: "#6366f1" };
-    if (g >= 77) return { l: "C+", c: "#f59e0b" };
-    if (g >= 73) return { l: "C", c: "#f59e0b" };
-    return { l: "D", c: "#ef4444" };
+    if (g >= 93) return { l: "A", c: "#422beb" };
+    if (g >= 90) return { l: "A-", c: "#422beb" };
+    if (g >= 87) return { l: "B+", c: "#5845ff" };
+    if (g >= 83) return { l: "B", c: "#5845ff" };
+    if (g >= 80) return { l: "B-", c: "#5845ff" };
+    if (g >= 77) return { l: "C+", c: "#7d70ff" };
+    if (g >= 73) return { l: "C", c: "#7d70ff" };
+    return { l: "D", c: "#c9c5ff" };
   };
 
   const updateEntry = (id: number, field: keyof GradeEntry, value: string | number) => {
@@ -520,9 +520,9 @@ export function AIToolsPage() {
         </div>
         <div className="flex gap-2">
           {[
-            { label: "Code Review", color: "#6366f1" },
-            { label: "Grade AI", color: "#10b981" },
-            { label: "Study Planner", color: "#8b5cf6" },
+            { label: "Code Review", color: "#422beb" },
+            { label: "Grade AI", color: "#5845ff" },
+            { label: "Study Planner", color: "#7d70ff" },
           ].map((t) => (
             <span
               key={t.label}

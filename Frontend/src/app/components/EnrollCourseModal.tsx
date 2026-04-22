@@ -67,15 +67,15 @@ export function EnrollCourseModal({ isOpen, onClose, onEnroll, enrolledCourseIds
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 max-w-2xl w-full mx-4 shadow-lg max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-[#0c0814] rounded-xl border border-slate-200 dark:border-purple-900/50 max-w-2xl w-full mx-4 shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Enroll in Course</h3>
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-purple-900/50">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-purple-50">Enroll in Course</h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+            className="p-1 hover:bg-slate-100 dark:hover:bg-[#1a122e] rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-slate-500" />
+            <X className="w-5 h-5 text-slate-500 dark:text-purple-400/70" />
           </button>
         </div>
 
@@ -83,26 +83,26 @@ export function EnrollCourseModal({ isOpen, onClose, onEnroll, enrolledCourseIds
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-purple-500/50" />
             <input
               type="text"
               placeholder="Search by course name, code, or instructor..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-purple-900/50 rounded-lg bg-white dark:bg-[#130d26] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-purple-300/30 focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-colors"
             />
           </div>
 
           {/* Messages */}
           {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-gap-2">
+            <div className="p-3 bg-red-50 dark:bg-[#2a0e16] border border-red-200 dark:border-red-900/50 rounded-lg flex gap-2">
               <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="p-3 bg-green-50 dark:bg-[#0e2a1a] border border-green-200 dark:border-green-900/50 rounded-lg flex gap-2">
               <p className="text-sm text-green-700 dark:text-green-200">{success}</p>
             </div>
           )}
@@ -110,25 +110,25 @@ export function EnrollCourseModal({ isOpen, onClose, onEnroll, enrolledCourseIds
           {/* Loading */}
           {loading ? (
             <div className="text-center py-8">
-              <p className="text-slate-500 dark:text-slate-400">Loading courses...</p>
+              <p className="text-slate-500 dark:text-purple-300/50 font-medium">Loading courses...</p>
             </div>
           ) : filteredCourses.length === 0 ? (
-            <div className="text-center py-8">
-              <BookOpen className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <p className="text-slate-500 dark:text-slate-400">No courses available</p>
+            <div className="text-center py-10">
+              <BookOpen className="w-12 h-12 text-slate-300 dark:text-purple-900/30 mx-auto mb-3" />
+              <p className="text-slate-500 dark:text-purple-300/50 font-medium">No courses available</p>
             </div>
           ) : (
             <div className="space-y-3">
               {filteredCourses.map((course) => (
                 <div
                   key={course.id}
-                  className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition"
+                  className="p-4 border border-slate-200 dark:border-purple-900/30 rounded-xl bg-white dark:bg-[#160f24] hover:border-purple-500/50 dark:hover:border-purple-500/50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <h4 className="font-medium text-slate-900 dark:text-white">{course.name}</h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{course.code}</p>
-                      <div className="flex items-center gap-4 mt-3 text-xs text-slate-600 dark:text-slate-400">
+                      <h4 className="font-semibold text-slate-900 dark:text-purple-50">{course.name}</h4>
+                      <p className="text-sm text-slate-500 dark:text-purple-300/60 mt-1">{course.code}</p>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-slate-600 dark:text-purple-300/50">
                         <div className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
                           <span>{course.instructor}</span>

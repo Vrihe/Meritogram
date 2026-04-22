@@ -138,7 +138,7 @@ export function CoursesPage() {
                         <p className={`${textMuted} text-xs mt-0.5`}>{course.code} · {course.instructor}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-sm" style={{ fontWeight: 800, color: course.currentGrade >= 90 ? "#10b981" : course.currentGrade >= 80 ? "#6366f1" : "#f59e0b" }}>
+                        <p className="text-sm" style={{ fontWeight: 800, color: course.currentGrade >= 90 ? "#5845ff" : course.currentGrade >= 80 ? "#422beb" : "#7d70ff" }}>
                           {course.currentGrade}%
                         </p>
                         <p className={`${textSub} text-xs`}>{course.credits} cr.</p>

@@ -5,7 +5,7 @@ interface GradeSparklineProps {
   height?: number;
 }
 
-export function GradeSparkline({ data, color = "#6366f1", width = 80, height = 32 }: GradeSparklineProps) {
+export function GradeSparkline({ data, color = "#422beb", width = 80, height = 32 }: GradeSparklineProps) {
   if (!data || data.length < 2) return null;
 
   const min = Math.min(...data) - 5;

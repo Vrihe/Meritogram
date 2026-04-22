@@ -12,10 +12,10 @@ export function GPACircle({ gpa, maxGpa = 4.0 }: GPACircleProps) {
   const offset = circumference - progress * circumference;
 
   const getColor = (g: number) => {
-    if (g >= 3.7) return "#6366f1"; // indigo
-    if (g >= 3.3) return "#8b5cf6"; // violet
-    if (g >= 3.0) return "#06b6d4"; // cyan
-    return "#f59e0b"; // amber
+    if (g >= 3.7) return "#422beb"; // user requested base
+    if (g >= 3.3) return "#5845ff"; // brighter
+    if (g >= 3.0) return "#7d70ff"; // lighter
+    return "#a59eff"; // very light
   };
 
   const color = getColor(gpa);

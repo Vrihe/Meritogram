@@ -303,13 +303,13 @@ export function GroupsPage() {
             placeholder="Search groups..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-purple-900/50 rounded-lg bg-white dark:bg-[#130d26] text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-colors"
           />
         </div>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as any)}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          className="px-4 py-2 border border-gray-300 dark:border-purple-900/50 rounded-lg bg-white dark:bg-[#130d26] text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-colors"
         >
           <option value="name">Sort by Name</option>
           <option value="year">Sort by Year</option>
@@ -439,10 +439,10 @@ export function GroupsPage() {
                     <p className="text-sm text-gray-500 italic">No students in this group</p>
                   ) : (
                     <div className="space-y-2">
-                      {group.students.map((student) => (
+                       {group.students.map((student) => (
                         <div
                           key={student.id}
-                          className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-700 rounded-lg"
+                          className="flex justify-between items-center p-3 bg-gray-50 dark:bg-[#1a132e] border border-transparent dark:border-purple-900/30 rounded-lg hover:border-purple-500/50 transition-colors"
                         >
                           <div>
                             <p className="font-medium text-sm">{student.profile.full_name}</p>
@@ -472,31 +472,34 @@ export function GroupsPage() {
 
       {/* Create Group Modal */}
       {showCreateGroupModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Create New Group</h2>
-              <button onClick={() => setShowCreateGroupModal(false)}>
-                <X size={24} />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <Card className="w-full max-w-md p-6 bg-white dark:bg-[#0c0814] border dark:border-[#1a132e] shadow-2xl rounded-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold dark:text-white">Create New Group</h2>
+              <button 
+                onClick={() => setShowCreateGroupModal(false)}
+                className="text-gray-500 hover:bg-gray-100 dark:hover:bg-[#1a132e] rounded-lg p-1 transition-colors"
+                >
+                <X size={20} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Group Name *</label>
+                <label className="block text-sm font-medium mb-1.5 dark:text-gray-300">Group Name *</label>
                 <input
                   type="text"
                   value={groupForm.name}
                   onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
                   placeholder="e.g., Group A"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#1a132e] rounded-xl bg-gray-50 dark:bg-[#130d26] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#422beb] focus:border-transparent outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Academic Year</label>
+                <label className="block text-sm font-medium mb-1.5 dark:text-gray-300">Academic Year</label>
                 <select
                   value={groupForm.academic_year}
                   onChange={(e) => setGroupForm({ ...groupForm, academic_year: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#1a132e] rounded-xl bg-gray-50 dark:bg-[#130d26] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#422beb] focus:border-transparent outline-none transition-all"
                 >
                   <option value="1st Year">1st Year</option>
                   <option value="2nd Year">2nd Year</option>
@@ -505,23 +508,23 @@ export function GroupsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1.5 dark:text-gray-300">Description</label>
                 <textarea
                   value={groupForm.description}
                   onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
                   placeholder="Optional description..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#1a132e] rounded-xl bg-gray-50 dark:bg-[#130d26] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#422beb] focus:border-transparent outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
                   rows={3}
                 />
               </div>
-              <div className="flex gap-2 pt-4">
-                <Button onClick={handleCreateGroup} className="flex-1 bg-blue-600 hover:bg-blue-700">
+              <div className="flex gap-3 pt-6">
+                <Button onClick={handleCreateGroup} className="flex-1 bg-[#422beb] hover:bg-[#5845ff] text-white py-6 rounded-xl font-medium transition-all duration-200 shadow-[0_0_15px_rgba(66,43,235,0.4)]">
                   Create
                 </Button>
                 <Button
                   onClick={() => setShowCreateGroupModal(false)}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 py-6 rounded-xl border-gray-200 dark:border-[#1a132e] hover:bg-gray-50 dark:hover:bg-[#1a132e] font-medium transition-all"
                 >
                   Cancel
                 </Button>
