@@ -1,3 +1,5 @@
+# This is a fork of the original project: the original uses an API for code review, while this fork uses Ollama.
+
 # Student Learning Dashboard
 
 Desktop + web dashboard with FastAPI backend, React/Electron frontend, MongoDB, and Ollama-based code review.
